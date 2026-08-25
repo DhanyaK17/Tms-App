@@ -28,21 +28,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-.profile-hero-banner::before {
-  content: "[SYS.DOSSIER // OPERATOR_PROFILE]";
-  position: absolute;
-  top: 16px; right: 24px;
-  background: rgba(0, 242, 254, 0.1);
-  border: 1px solid var(--primary);
-  color: var(--primary);
-  padding: 3px 12px;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  border-radius: 999px;
-}
-
 .banner-grid-overlay {
   position: absolute;
   inset: 0;
