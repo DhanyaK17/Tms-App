@@ -35,16 +35,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Mobile Hamburger Toggle */}
-        <button
-          className="top-mobile-toggle"
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          aria-label="Toggle navigation"
-        >
-          {isMobileOpen ? "✕" : "☰"}
-        </button>
-
-        {/* Center: Main Navigation */}
+        {/* Center: Main Navigation & Mobile Drawer */}
         <nav className={`top-navbar-links ${isMobileOpen ? "mobile-open" : ""}`}>
           {isAuthenticated ? (
             <>
@@ -104,6 +95,17 @@ const Navbar = () => {
                   </Link>
                 </div>
               )}
+
+              <Link to="/profile" className={isActive("/profile")}>
+                <span className="nav-icon">👤</span>
+                <span className="nav-text">Profile ({user?.username})</span>
+              </Link>
+
+              {/* Mobile Explicit Logout Action inside Drawer */}
+              <button onClick={handleLogout} className="mobile-logout-btn">
+                <span className="nav-icon">⏻</span>
+                <span>Logout Session</span>
+              </button>
             </>
           ) : (
             <Link to="/login" className="top-nav-link">
@@ -113,28 +115,40 @@ const Navbar = () => {
           )}
         </nav>
 
-        {/* Right: User Profile Pod */}
-        {isAuthenticated && (
-          <div className="top-navbar-user">
-            <Link to="/profile" className="user-profile-card">
-              <div className="avatar-badge">
-                {user?.username?.charAt(0).toUpperCase()}
-                <span className="online-dot"></span>
-              </div>
-              <div className="user-info-text">
-                <span className="user-name">{user?.username}</span>
-                <span className="user-role-badge">{user?.role}</span>
-              </div>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="top-logout-btn"
-              title="Logout Session"
-            >
-              ⏻
-            </button>
-          </div>
-        )}
+        {/* Right: Controls (Mobile Toggle + User Pod + Always Visible Header Logout) */}
+        <div className="top-navbar-controls">
+          {isAuthenticated && (
+            <div className="top-navbar-user">
+              <Link to="/profile" className="user-profile-card">
+                <div className="avatar-badge">
+                  {user?.username?.charAt(0).toUpperCase()}
+                  <span className="online-dot"></span>
+                </div>
+                <div className="user-info-text">
+                  <span className="user-name">{user?.username}</span>
+                  <span className="user-role-badge">{user?.role}</span>
+                </div>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="top-logout-btn"
+                title="Logout Session"
+              >
+                ⏻
+              </button>
+            </div>
+          )}
+
+          {/* Mobile Hamburger Toggle */}
+          <button
+            className="top-mobile-toggle"
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+            aria-label="Toggle navigation"
+          >
+            {isMobileOpen ? "✕" : "☰"}
+          </button>
+        </div>
+
       </div>
     </header>
   );
