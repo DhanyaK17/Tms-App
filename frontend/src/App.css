@@ -7,14 +7,7 @@
   color: var(--primary);
   font-weight: 600;
   background: var(--bg-page);
-}
-
-:root {
-  --bg-page: #000000;
-  --card-bg: #0D0D0D;
-  /* Sidebar Dimensions */
-  --sidebar-w: 70px;
-  --sidebar-w-expanded: 280px;
+  font-family: var(--font-mono);
 }
 
 html,
@@ -33,58 +26,26 @@ body {
 
 .app-layout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
 .app-content {
   flex-grow: 1;
-  padding-left: var(--sidebar-w);
+  padding-top: 76px;
   width: 100%;
-  transition: padding-left 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: padding 0.25s ease;
 }
 
-.app-layout:has(.navbar-container.expanded) .app-content {
-  padding-left: var(--sidebar-w-expanded);
-}
-
-@media (max-width: 1024px) {
+@media (max-width: 600px) {
   .app-content {
-    padding-left: var(--sidebar-w);
+    padding-top: 64px;
   }
 }
-
-@media (max-width: 768px) {
-  .app-layout {
-    flex-direction: column;
-  }
-
-  .app-content {
-    padding-left: 0;
-    padding-top: 60px;
-    /* Accounts for the new mobile topbar */
-  }
-}
-
-/* Background pulse removed */
 
 h1,
 h2,
 h3 {
   color: #fff;
   margin-bottom: 1rem;
-}
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-}
-
-h2 {
-  font-size: 2.1rem;
-  font-weight: 700;
-}
-
-h3 {
-  font-size: 1.6rem;
-  font-weight: 600;
 }

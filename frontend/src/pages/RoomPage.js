@@ -85,8 +85,13 @@ const RoomPage = () => {
   return (
     <div className="master-screen animated-bg">
       <div className="screen-content">
+        
+        {/* Header Rail Card */}
         <header className="screen-header-rail">
-          <h1>Facility Management</h1>
+          <div>
+            <h1>Facility Room Directory</h1>
+            <p className="info-label">Room allocation, block locations & departmental assignments</p>
+          </div>
           <button
             onClick={() => { setShowForm(!showForm); if (showForm) setEditingId(null); }}
             className="btn-primary"
@@ -97,6 +102,7 @@ const RoomPage = () => {
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Toggled Form Glass Card */}
         {showForm && (
           <form className="master-form-glass" onSubmit={handleSubmit}>
             <div className="form-grid">
@@ -156,6 +162,7 @@ const RoomPage = () => {
           </form>
         )}
 
+        {/* Master Table Card */}
         <section className="master-table-card">
           <div className="table-action-header">
             <h3>Facility Registry</h3>
@@ -168,7 +175,7 @@ const RoomPage = () => {
                   <th>Room ID</th>
                   <th>Block Location</th>
                   <th>Department</th>
-                  <th>Action</th>
+                  <th style={{ textAlign: 'right' }}>Management</th>
                 </tr>
               </thead>
               <tbody>
@@ -179,8 +186,8 @@ const RoomPage = () => {
                     <td>{room.department?.name || "N/A"}</td>
                     <td>
                       <div className="action-btn-group">
-                        <button className="btn-icon-only" onClick={() => handleEdit(room)}>✎</button>
-                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(room._id)}>✕</button>
+                        <button className="btn-icon-only" onClick={() => handleEdit(room)}>✏️ Edit</button>
+                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(room._id)}>🗑️ Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -189,6 +196,7 @@ const RoomPage = () => {
             </table>
           </div>
         </section>
+
       </div>
     </div>
   );

@@ -1,122 +1,110 @@
+/* ComplaintFormPage.css - Operational Incident Terminal with Soft Rounded Edges */
+
 .complaint-form-page {
-  min-height: 100vh;
-  padding-top: 80px;
+  min-height: calc(100vh - 70px);
+  width: 100%;
 }
 
 .form-rail {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-  animation: pageIn 0.6s ease-out;
+  animation: fadeIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 .form-hero h1 {
-  font-size: clamp(2rem, 5vw, 2.8rem);
-  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin-bottom: 0.3rem;
 }
 
 .form-hero p {
-  color: var(--text-secondary);
-  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--primary);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-/* Management Form Card - Flat Design */
+/* Tactical Form Card with Rounded Edges */
 .form-glass-card {
-  background: rgba(30, 30, 30, 0.8);
-  border: 1px solid var(--border-soft);
-  border-radius: 24px;
-  padding: 3.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  padding: 3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.12);
+  position: relative;
 }
 
 .form-cluster {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 2rem;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 2rem;
 }
 
-.form-group label {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 1.25rem;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 0.85rem 1rem;
-  background: #FFFFFF;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  color: #000000;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: var(--transition);
-}
-
-/* Premium File Input */
+/* File Telemetry Portal Upload Zone */
 .file-upload-zone {
   position: relative;
   width: 100%;
-  min-height: 120px;
-  border: 2px dashed rgba(255, 255, 255, 0.1);
+  min-height: 130px;
+  border: 2px dashed rgba(0, 242, 254, 0.25);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(10, 14, 26, 0.6);
   transition: var(--transition);
   cursor: pointer;
 }
 
 .file-upload-zone:hover {
   border-color: var(--primary);
-  background: rgba(245, 158, 11, 0.05);
+  background: rgba(0, 242, 254, 0.08);
+  box-shadow: var(--shadow-glow);
 }
 
 .file-upload-zone input[type="file"] {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   opacity: 0;
   cursor: pointer;
   z-index: 10;
 }
 
 .upload-icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.2rem;
+  margin-bottom: 0.4rem;
 }
 
 .upload-text {
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--primary);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.1em;
 }
 
 .selected-file-name {
   margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--primary);
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--accent-green);
+  font-weight: 700;
 }
 
 /* Access Denied */
@@ -135,16 +123,7 @@
 }
 
 @media (max-width: 768px) {
-  .form-rail {
-    padding: 1rem;
-  }
-
-  .form-glass-card {
-    padding: 1.5rem;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
+  .form-rail { padding: 1.5rem; }
+  .form-glass-card { padding: 1.5rem; }
+  .form-row { grid-template-columns: 1fr; gap: 1.5rem; }
 }

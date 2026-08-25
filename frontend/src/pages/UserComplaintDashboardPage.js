@@ -3,20 +3,6 @@ import { complaintService, FILE_BASE_URL } from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import "./UserComplaintDashboardPage.css";
 
-const StatCard = ({ label, value, color, onClick }) => (
-  <div
-    className="stat-card"
-    style={{ "--stat-color": color }}
-    onClick={onClick}
-    role="button"
-    tabIndex={0}
-  >
-    <div className="stat-value">{value}</div>
-    <div className="stat-label">{label}</div>
-    <div className="stat-glow" style={{ background: color }}></div>
-  </div>
-);
-
 const UserComplaintDashboardPage = () => {
   const { user } = useContext(AuthContext);
   const [myStats, setMyStats] = useState({
@@ -29,6 +15,7 @@ const UserComplaintDashboardPage = () => {
   const [error, setError] = useState("");
   const [complaints, setComplaints] = useState([]);
   const [filterStatus, setFilterStatus] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
 
   const loadData = useCallback(async () => {
@@ -42,7 +29,7 @@ const UserComplaintDashboardPage = () => {
       const stats = {
         total: allComplaints.length,
         pending: allComplaints.filter((c) => c.status === "Pending").length,
-        assigned: allComplaints.filter((c) => c.status === "Assigned").length,
+        assigned: allComplaints.filter((c) => c.status === "Assigned" || c.status === "In-Progress").length,
         closed: allComplaints.filter((c) => c.status === "Completed").length,
       };
       setMyStats(stats);
@@ -52,17 +39,24 @@ const UserComplaintDashboardPage = () => {
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  const filteredComplaints =
-    filterStatus === "All"
-      ? complaints
-      : complaints.filter((c) => c.status === filterStatus);
+  const filteredComplaints = complaints.filter((c) => {
+    const matchesStatus = filterStatus === "All" || c.status === filterStatus;
+    const term = searchTerm.toLowerCase();
+    const matchesSearch =
+      !term ||
+      c.blockName?.toLowerCase().includes(term) ||
+      c.roomNumber?.toLowerCase().includes(term) ||
+      c.complaintType?.toLowerCase().includes(term) ||
+      c.remarks?.toLowerCase().includes(term);
+
+    return matchesStatus && matchesSearch;
+  });
 
   const viewComplaintDetails = (complaint) => {
     setSelectedComplaint(complaint);
@@ -75,49 +69,76 @@ const UserComplaintDashboardPage = () => {
       case "Assigned": return "tag-assigned";
       case "In-Progress": return "tag-progress";
       case "Completed": return "tag-completed";
+      case "Onhold": return "tag-onhold";
       default: return "";
     }
   };
 
-  if (loading) return <div className="loading">Initializing Dashboard...</div>;
+  if (loading) return <div className="loading">Initializing Ticket Dossier...</div>;
 
   return (
     <div className="user-complaint-dashboard animated-bg">
       <div className="dashboard-content">
+        
+        {/* Header Rail Card */}
         <header className="page-hero-header">
-          <h1>My Performance</h1>
-          <p>Tracking your service tickets and issue resolutions</p>
+          <div>
+            <h1>My Ticket Overview</h1>
+            <p className="info-label">Tracking reported service requests & field technician activity</p>
+          </div>
+          <button onClick={loadData} className="btn-primary">
+            Sync Records ⟳
+          </button>
         </header>
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Stats Grid */}
         <section className="stats-overview">
-          <div className="stats-grid">
-            <StatCard
-              label="Total Engagement"
-              value={myStats.total}
-              color="var(--primary)"
+          <div className="user-stats-grid">
+            <div
+              className="user-stat-card cyan"
               onClick={() => setFilterStatus("All")}
-            />
-            <StatCard
-              label="Pending Review"
-              value={myStats.pending}
-              color="#FF7070"
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="stat-num">{myStats.total}</div>
+              <div className="stat-text">TOTAL TICKETS</div>
+            </div>
+
+            <div
+              className="user-stat-card amber"
               onClick={() => setFilterStatus("Pending")}
-            />
-            <StatCard
-              label="Success Closed"
-              value={myStats.closed}
-              color="#FFEDC7"
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="stat-num">{myStats.pending}</div>
+              <div className="stat-text">PENDING REVIEW</div>
+            </div>
+
+            <div
+              className="user-stat-card violet"
+              onClick={() => setFilterStatus("Assigned")}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="stat-num">{myStats.assigned}</div>
+              <div className="stat-text">IN FIELD PROGRESS</div>
+            </div>
+
+            <div
+              className="user-stat-card green"
               onClick={() => setFilterStatus("Completed")}
-            />
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="stat-num">{myStats.closed}</div>
+              <div className="stat-text">RESOLVED UNITS</div>
+            </div>
           </div>
         </section>
 
+        {/* Ticket Inspection Panel */}
         {selectedComplaint && (
           <section className="complaint-details-glass">
             <div className="details-header">
-              <h2>Ticket Inspection</h2>
+              <h2>Ticket Inspection Drawer</h2>
               <button
                 onClick={() => setSelectedComplaint(null)}
                 className="close-details-btn"
@@ -152,7 +173,7 @@ const UserComplaintDashboardPage = () => {
 
               <div className="info-box" style={{ gridColumn: "1 / -1" }}>
                 <span className="info-label">Service Remarks</span>
-                <p className="info-content" style={{ fontWeight: 400, opacity: 0.8 }}>
+                <p className="info-content" style={{ fontWeight: 400, opacity: 0.85 }}>
                   {selectedComplaint.remarks || "No remarks provided."}
                 </p>
               </div>
@@ -175,79 +196,97 @@ const UserComplaintDashboardPage = () => {
           </section>
         )}
 
+        {/* Filter Controls & Data Table */}
         <section className="data-table-container">
-          <div className="table-header-row">
-            <h3>{filterStatus} Activity Rail</h3>
-            <button onClick={() => setFilterStatus("All")} className="reset-filter-btn">
-              Clear Filters
-            </button>
+          <div className="table-controls-bar">
+            <div className="search-input-wrapper">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                className="table-search-input"
+                placeholder="Search ticket, block, room, category..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button className="clear-search-btn" onClick={() => setSearchTerm("")}>✕</button>
+              )}
+            </div>
+
+            <div className="status-pill-filters">
+              {["All", "Pending", "Assigned", "In-Progress", "Completed"].map((st) => (
+                <button
+                  key={st}
+                  className={`filter-pill ${filterStatus === st ? 'active' : ''}`}
+                  onClick={() => setFilterStatus(st)}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="table-wrapper">
             <table className="standard-table">
               <thead>
                 <tr>
-                  <th>Target</th>
+                  <th>Target Facility</th>
                   <th>Category</th>
                   <th>Status</th>
                   <th>Timestamp</th>
-                  <th>Actions</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredComplaints.map((c) => (
-                  <tr key={c._id} onClick={() => viewComplaintDetails(c)} style={{ cursor: 'pointer' }}>
-                    <td>{c.blockName} / {c.roomNumber}</td>
-                    <td>{c.complaintType}</td>
-                    <td>
-                      <span className={`status-tag ${getStatusClass(c.status)}`}>
-                        {c.status}
-                      </span>
-                    </td>
-                    <td>{new Date(c.createdAt).toLocaleDateString()}</td>
-                    <td onClick={(e) => e.stopPropagation()}>
-                      {c.assignedTo && (String(c.assignedTo._id || c.assignedTo) === String(user?.id || user?._id)) && c.status !== "Completed" ? (
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          {c.status !== "In-Progress" && (
-                            <button
-                              onClick={() => complaintService.updateStatus(c._id, "In-Progress").then(loadData)}
-                              className="reset-filter-btn"
-                              style={{ padding: '0.3rem 0.6rem', background: 'var(--primary)', color: '#000', border: 'none' }}
-                            >
-                              Work It
-                            </button>
+                {filteredComplaints.map((c) => {
+                  const isAssigned = c.assignedTo && (String(c.assignedTo._id || c.assignedTo) === String(user?.id || user?._id));
+                  return (
+                    <tr key={c._id} onClick={() => viewComplaintDetails(c)} style={{ cursor: 'pointer' }}>
+                      <td><strong>{c.blockName}</strong> • {c.roomNumber}</td>
+                      <td>{c.complaintType}</td>
+                      <td>
+                        <span className={`status-tag ${getStatusClass(c.status)}`}>
+                          {c.status}
+                        </span>
+                      </td>
+                      <td style={{ opacity: 0.75 }}>{new Date(c.createdAt).toLocaleDateString()}</td>
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <div className="action-btn-group">
+                          {isAssigned && c.status !== "Completed" && (
+                            <>
+                              {c.status !== "In-Progress" && (
+                                <button
+                                  onClick={() => complaintService.updateStatus(c._id, "In-Progress").then(loadData)}
+                                  className="btn-icon-only"
+                                  style={{ background: 'var(--primary)', color: '#000' }}
+                                >
+                                  Work It
+                                </button>
+                              )}
+                              <button
+                                onClick={() => complaintService.updateStatus(c._id, "Completed").then(loadData)}
+                                className="btn-icon-only"
+                                style={{ background: 'var(--accent-green)', color: '#000' }}
+                              >
+                                Finish
+                              </button>
+                            </>
                           )}
                           <button
-                            onClick={() => complaintService.updateStatus(c._id, "Completed").then(loadData)}
-                            className="reset-filter-btn"
-                            style={{ padding: '0.3rem 0.6rem', background: '#FFEBB5', color: '#000', border: 'none' }}
-                          >
-                            Finish
-                          </button>
-                          <button
                             onClick={() => viewComplaintDetails(c)}
-                            className="reset-filter-btn"
-                            style={{ padding: '0.3rem 0.6rem' }}
+                            className="btn-icon-only"
                           >
                             Details
                           </button>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => viewComplaintDetails(c)}
-                          className="reset-filter-btn"
-                          style={{ padding: '0.3rem 0.6rem' }}
-                        >
-                          Details
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {filteredComplaints.length === 0 && (
                   <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '4rem', opacity: 0.5 }}>
-                      No digital records matching these filters.
+                    <td colSpan="5" style={{ textAlign: 'center', padding: '3.5rem', color: 'var(--text-muted)' }}>
+                      No ticket records found matching criteria.
                     </td>
                   </tr>
                 )}
@@ -255,6 +294,7 @@ const UserComplaintDashboardPage = () => {
             </table>
           </div>
         </section>
+
       </div>
     </div>
   );

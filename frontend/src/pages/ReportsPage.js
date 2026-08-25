@@ -49,6 +49,8 @@ const ReportsPage = () => {
         setFilters(parsed);
         fetchReportInternal(parsed);
       } catch (e) { }
+    } else {
+      fetchReportInternal({});
     }
   }, []);
 
@@ -56,6 +58,14 @@ const ReportsPage = () => {
     localStorage.setItem("superadmin_report_filters", JSON.stringify(filters));
     localStorage.setItem("superadmin_report_generated", "true");
     fetchReportInternal(filters);
+  };
+
+  const handleResetFilters = () => {
+    const resetState = { department: "", programme: "", complaintType: "", status: "", assignee: "" };
+    setFilters(resetState);
+    localStorage.removeItem("superadmin_report_filters");
+    localStorage.removeItem("superadmin_report_generated");
+    fetchReportInternal(resetState);
   };
 
   const exportCSV = () => {
@@ -77,10 +87,21 @@ const ReportsPage = () => {
     URL.revokeObjectURL(url);
   };
 
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "Pending": return "tag-pending";
+      case "Assigned": return "tag-assigned";
+      case "In-Progress": return "tag-progress";
+      case "Completed": return "tag-completed";
+      case "Onhold": return "tag-onhold";
+      default: return "";
+    }
+  };
+
   if (user?.role !== "SuperAdmin") {
     return (
       <div className="reports-page animated-bg">
-        <div className="reports-rail denied-screen">
+        <div className="reports-container denied-screen">
           <div className="denied-icon">🔒</div>
           <h1>Security Override Required</h1>
           <p>Access to analytical data is restricted to SuperAdmin tier.</p>
@@ -91,16 +112,24 @@ const ReportsPage = () => {
 
   return (
     <div className="reports-page animated-bg">
-      <div className="reports-rail">
-        <header className="reports-header">
-          <h1>Intelligence Center</h1>
-          <p className="info-label">Advanced filtering and analytical data export</p>
+      <div className="reports-container">
+        
+        {/* Header Rail Card */}
+        <header className="reports-header-card">
+          <div>
+            <h1>Intelligence Center</h1>
+            <p className="info-label">Advanced filtering, analytical metrics & data cluster export</p>
+          </div>
+          <button onClick={exportCSV} disabled={!results.length} className="btn-primary">
+            Export Data Cluster ⤓
+          </button>
         </header>
 
         {error && <div className="error-message">{error}</div>}
 
-        <section className="filter-console">
-          <div className="intelligence-grid">
+        {/* Filter Glass Console */}
+        <section className="reports-filter-glass">
+          <div className="reports-filter-grid">
             <div className="form-group">
               <label>Department Unit</label>
               <select value={filters.department} onChange={(e) => setFilters({ ...filters, department: e.target.value })}>
@@ -108,6 +137,7 @@ const ReportsPage = () => {
                 {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
               </select>
             </div>
+
             <div className="form-group">
               <label>Programme Hub</label>
               <select value={filters.programme} onChange={(e) => setFilters({ ...filters, programme: e.target.value })}>
@@ -115,10 +145,17 @@ const ReportsPage = () => {
                 {programmes.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
               </select>
             </div>
+
             <div className="form-group">
               <label>Operational Type</label>
-              <input value={filters.complaintType} onChange={(e) => setFilters({ ...filters, complaintType: e.target.value })} placeholder="Search codes..." />
+              <input
+                type="text"
+                value={filters.complaintType}
+                onChange={(e) => setFilters({ ...filters, complaintType: e.target.value })}
+                placeholder="Search codes..."
+              />
             </div>
+
             <div className="form-group">
               <label>Lifecycle Status</label>
               <select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
@@ -132,14 +169,19 @@ const ReportsPage = () => {
             </div>
           </div>
 
-          <div className="intelligence-btn-group">
-            <button onClick={exportCSV} className="btn-intelligence btn-secondary-intel">Export Data Cluster ⤓</button>
-            <button onClick={handleManualGenerate} className="btn-intelligence btn-primary-intel">Initialize Search 🔍</button>
+          <div className="reports-filter-actions">
+            <button onClick={handleResetFilters} className="btn-secondary">
+              Reset Filters ⟳
+            </button>
+            <button onClick={handleManualGenerate} className="btn-primary">
+              Initialize Search 🔍
+            </button>
           </div>
         </section>
 
-        <section className="intelligence-card">
-          <div className="table-header-row">
+        {/* Analytical Results Grid Table */}
+        <section className="reports-table-container">
+          <div className="reports-table-header">
             <h3>Analytical Result Grid</h3>
             <span className="info-label">{results.length} Nodes Identified</span>
           </div>
@@ -153,31 +195,32 @@ const ReportsPage = () => {
                   <th>Category</th>
                   <th>Condition</th>
                   <th>Assignee</th>
-                  <th>Origin</th>
+                  <th>Originator</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}>Processing Data...</td></tr>
+                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3.5rem', color: 'var(--primary)' }}>Processing Data Cluster...</td></tr>
                 ) : (
                   results.map(r => (
                     <tr key={r._id}>
-                      <td style={{ opacity: 0.7 }}>{new Date(r.createdAt).toLocaleDateString()}</td>
+                      <td style={{ opacity: 0.75 }}>{new Date(r.createdAt).toLocaleDateString()}</td>
                       <td><strong>{r.blockName}</strong> • {r.roomNumber}</td>
                       <td>{r.complaintType}</td>
-                      <td><span className={`status-tag tag-progress`}>{r.status}</span></td>
+                      <td><span className={`status-tag ${getStatusClass(r.status)}`}>{r.status}</span></td>
                       <td>{r.assignedTo?.username || "Unassigned"}</td>
                       <td>{r.createdBy?.username || "N/A"}</td>
                     </tr>
                   ))
                 )}
                 {!loading && results.length === 0 && (
-                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3rem', opacity: 0.5 }}>No data nodes found for selected criteria.</td></tr>
+                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3.5rem', opacity: 0.6 }}>No data nodes found for selected criteria.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </section>
+
       </div>
     </div>
   );

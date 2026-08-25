@@ -81,8 +81,13 @@ const BlockPage = () => {
   return (
     <div className="master-screen animated-bg">
       <div className="screen-content">
+        
+        {/* Header Rail Card */}
         <header className="screen-header-rail">
-          <h1>Block Infrastructure</h1>
+          <div>
+            <h1>Block Infrastructure</h1>
+            <p className="info-label">Facility block directory & academic programme mappings</p>
+          </div>
           <button
             onClick={() => { setShowForm(!showForm); if (showForm) setEditingId(null); }}
             className="btn-primary"
@@ -93,11 +98,12 @@ const BlockPage = () => {
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Toggled Form Glass Card */}
         {showForm && (
           <form className="master-form-glass" onSubmit={handleSubmit}>
             <div className="form-grid">
               <div className="form-group">
-                <label>Designation Name</label>
+                <label>Block Code / Name</label>
                 <input
                   type="text"
                   value={formData.name}
@@ -120,7 +126,7 @@ const BlockPage = () => {
                 </select>
               </div>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Associated Programme</label>
+                <label>Associated Core Programme</label>
                 <select
                   value={formData.programme}
                   onChange={(e) => setFormData({ ...formData, programme: e.target.value })}
@@ -139,11 +145,13 @@ const BlockPage = () => {
           </form>
         )}
 
+        {/* Data Table Card */}
         <section className="master-table-card">
           <div className="table-action-header">
             <h3>Infrastructure Registry</h3>
             <span className="info-label">{blocks.length} Blocks Verified</span>
           </div>
+
           <div className="table-wrapper">
             <table className="standard-table">
               <thead>
@@ -162,8 +170,8 @@ const BlockPage = () => {
                     <td>{block.programme?.name || "N/A"}</td>
                     <td>
                       <div className="action-btn-group">
-                        <button className="btn-icon-only" onClick={() => handleEdit(block)}>✎</button>
-                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(block._id)}>✕</button>
+                        <button className="btn-icon-only" onClick={() => handleEdit(block)}>✏️ Edit</button>
+                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(block._id)}>🗑️ Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -172,6 +180,7 @@ const BlockPage = () => {
             </table>
           </div>
         </section>
+
       </div>
     </div>
   );

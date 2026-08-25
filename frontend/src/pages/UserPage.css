@@ -1,109 +1,141 @@
-/* UserPage.css - Professional Management */
+/* UserPage.css - Soft Rounded Cyber-Tech User Management */
+
 .user-page {
-  min-height: 100vh;
-  padding-left: var(--sidebar-w);
-  transition: padding-left 0.3s ease;
+  min-height: calc(100vh - 70px);
+  width: 100%;
 }
 
 .user-page-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--space-lg);
+  padding: 3rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 2.5rem;
   animation: fadeIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 .user-page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 0.5rem;
+  background: var(--card-bg);
+  padding: 1.75rem 2.25rem;
+  border-radius: 28px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.12);
 }
 
 .user-page-header h1 {
-  font-size: 2rem;
-  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .primary-action-btn {
-  background: var(--primary);
-  color: #fff;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(0, 242, 254, 0.05) 100%);
+  color: var(--primary);
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
   font-weight: 700;
-  border: none;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--primary);
   cursor: pointer;
   transition: var(--transition);
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-glow);
 }
 
 .primary-action-btn:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
+  background: var(--primary);
+  color: #05070F;
+  box-shadow: 0 0 25px rgba(0, 242, 254, 0.5);
+  transform: translateY(-2px);
 }
 
-/* User Form - High Contrast Design */
+/* User Form Glass Card */
 .user-form-card {
-  background: rgba(30, 30, 30, 0.8);
-  border: 1px solid var(--border-soft);
-  border-radius: 24px;
-  padding: 3.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  padding: 2.5rem;
   max-width: 1000px;
   margin: 0 auto;
   width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.12);
 }
 
 .form-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 1.75rem;
 }
 
 .form-group-item label {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .form-group-item input,
 .form-group-item select {
   width: 100%;
-  padding: 0.85rem 1rem;
-  background: #FFFFFF;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  color: #000000;
-  font-size: 1rem;
+  padding: 0.85rem 1.1rem;
+  background: rgba(12, 16, 29, 0.95);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  color: #FFFFFF;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   font-weight: 500;
   transition: var(--transition);
+}
+
+.form-group-item select option {
+  background: #0A0E1A;
+  color: #FFFFFF;
 }
 
 .form-group-item input:focus,
 .form-group-item select:focus {
   outline: none;
+  background-color: rgba(16, 22, 38, 1);
   border-color: var(--primary);
-  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.25), 0 0 15px rgba(0, 242, 254, 0.2);
 }
 
 /* User Management Table */
 .user-table-card {
   background: var(--card-bg);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  overflow-x: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
   width: 100%;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .user-table {
@@ -111,99 +143,125 @@
   border-collapse: collapse;
 }
 
+.user-table thead {
+  background-color: rgba(10, 14, 26, 0.95);
+  border-bottom: 1px solid var(--glass-border);
+}
+
 .user-table th {
-  padding: 1rem 1.75rem;
+  padding: 1.1rem 1.5rem;
   text-align: left;
-  background: rgba(255, 255, 255, 0.01);
-  border-bottom: 1px solid var(--border-soft);
+  font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .user-table td {
-  padding: 1.25rem 1.75rem;
-  border-bottom: 1px solid var(--border-soft);
-  font-size: 0.95rem;
+  padding: 1.1rem 1.5rem;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(0, 242, 254, 0.06);
 }
 
 .user-table tr:hover td {
-  background: rgba(255, 255, 255, 0.01);
+  background-color: rgba(0, 242, 254, 0.06);
 }
 
 .edit-action-btn,
 .delete-action-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
   border: 1px solid transparent;
   transition: var(--transition);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .edit-action-btn {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  border-color: var(--border-soft);
+  background-color: rgba(0, 242, 254, 0.12);
+  color: var(--primary);
+  border-color: rgba(0, 242, 254, 0.3);
 }
 
 .edit-action-btn:hover {
-  background: var(--primary);
-  border-color: var(--primary);
+  background-color: var(--primary);
+  color: #05070F;
+  box-shadow: var(--shadow-glow);
 }
 
 .delete-action-btn {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: rgba(255, 8, 68, 0.12);
+  color: var(--accent-rose);
+  border-color: rgba(255, 8, 68, 0.3);
   margin-left: 0.5rem;
 }
 
 .delete-action-btn:hover {
-  background: #ef4444;
-  color: #fff;
+  background: var(--accent-rose);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-glow-rose);
 }
 
 .role-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
-  font-weight: 750;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
+  font-weight: 800;
+  background: rgba(0, 242, 254, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(0, 242, 254, 0.25);
   text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .role-badge.superadmin {
-  background: rgba(235, 76, 76, 0.1);
-  color: var(--primary);
-  border: 1px solid rgba(235, 76, 76, 0.2);
+  background: rgba(255, 8, 68, 0.12);
+  color: var(--accent-rose);
+  border: 1px solid rgba(255, 8, 68, 0.3);
 }
 
 @media (max-width: 768px) {
-  .user-page {
-    padding-left: 0;
-    padding-bottom: 70px;
-  }
-
   .user-page-container {
-    padding: 1.5rem;
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
   }
 
   .user-page-header {
     flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
     text-align: center;
-    gap: 1rem;
+    border-radius: 20px;
+  }
+
+  .user-page-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .primary-action-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .user-form-card {
-    padding: 1.5rem;
+    padding: 1.5rem 1.25rem;
+    border-radius: 20px;
   }
 
   .form-grid-2 {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.25rem;
+  }
+
+  .user-table-card {
+    border-radius: 18px;
   }
 }

@@ -106,8 +106,13 @@ const UserPage = () => {
   return (
     <div className="master-screen animated-bg">
       <div className="screen-content">
+        
+        {/* Header Rail Card */}
         <header className="screen-header-rail">
-          <h1>Identity Directory</h1>
+          <div>
+            <h1>Identity Directory</h1>
+            <p className="info-label">User accounts, role permissions & administrative access registry</p>
+          </div>
           <button
             onClick={() => { setShowForm(!showForm); if (showForm) setEditingId(null); }}
             className="btn-primary"
@@ -118,6 +123,7 @@ const UserPage = () => {
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Toggled Form Glass Card */}
         {showForm && (
           <form className="master-form-glass" onSubmit={handleSubmit}>
             <div className="form-grid">
@@ -187,6 +193,7 @@ const UserPage = () => {
           </form>
         )}
 
+        {/* Master Table Card */}
         <section className="master-table-card">
           <div className="table-action-header">
             <h3>User Registry</h3>
@@ -209,16 +216,15 @@ const UserPage = () => {
                     <td style={{ fontWeight: 700 }}>{u.username}</td>
                     <td style={{ opacity: 0.8 }}>{u.email}</td>
                     <td>
-                      <span className={`status-tag ${u.role === "SuperAdmin" ? "tag-admin" : "tag-progress"}`}>
+                      <span className={`status-tag ${u.role === "SuperAdmin" ? "tag-onhold" : "tag-progress"}`}>
                         {u.role}
                       </span>
                     </td>
-
                     <td>{u.department?.name || "-"}</td>
                     <td>
                       <div className="action-btn-group">
-                        <button className="btn-icon-only" onClick={() => handleEdit(u)}>✎</button>
-                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(u._id)}>✕</button>
+                        <button className="btn-icon-only" onClick={() => handleEdit(u)}>✏️ Edit</button>
+                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(u._id)}>🗑️ Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -227,6 +233,7 @@ const UserPage = () => {
             </table>
           </div>
         </section>
+
       </div>
     </div>
   );

@@ -13,6 +13,10 @@ const ComplaintsDashboardPage = () => {
   const [assignTarget, setAssignTarget] = useState({ complaintId: null, assignee: "" });
   const [selectedComplaint, setSelectedComplaint] = useState(null);
 
+  // Search & Filter state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("All");
+
   const viewComplaintDetails = (complaint) => {
     setSelectedComplaint(complaint);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -69,8 +73,6 @@ const ComplaintsDashboardPage = () => {
     }
   };
 
-
-
   const getStatusClass = (status) => {
     switch (status) {
       case "Pending": return "tag-pending";
@@ -82,41 +84,74 @@ const ComplaintsDashboardPage = () => {
     }
   };
 
+  // Filter complaints dynamically
+  const filteredComplaints = complaints.filter((c) => {
+    const matchesStatus = filterStatus === "All" || c.status === filterStatus;
+    const term = searchTerm.toLowerCase();
+    const matchesSearch =
+      !term ||
+      c.blockName?.toLowerCase().includes(term) ||
+      c.roomNumber?.toLowerCase().includes(term) ||
+      c.complaintType?.toLowerCase().includes(term) ||
+      c.createdBy?.username?.toLowerCase().includes(term) ||
+      c.remarks?.toLowerCase().includes(term);
+
+    return matchesStatus && matchesSearch;
+  });
+
   if (listLoading) return <div className="loading">Accessing Global Repository...</div>;
 
   return (
     <div className="complaints-dashboard animated-bg">
       <div className="dashboard-rail">
         <header className="dashboard-hero">
-          <h1>Global Oversight</h1>
-          <p className="info-label">Centralized complaint management dashboard</p>
+          <h1>Global Oversight Console</h1>
+          <p className="info-label">Centralized complaint management & field technician dispatch</p>
         </header>
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Stats Grid with Filter Triggers */}
         <section className="admin-stats-grid">
-          <div className="admin-stat-card" style={{ "--stat-color": "var(--primary)" }}>
+          <div
+            className="admin-stat-card cyan"
+            onClick={() => setFilterStatus("All")}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="stat-value">{stats.total}</span>
             <span className="stat-label">System Load</span>
           </div>
-          <div className="admin-stat-card" style={{ "--stat-color": "#FF7070" }}>
+          <div
+            className="admin-stat-card amber"
+            onClick={() => setFilterStatus("Pending")}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="stat-value">{stats.pending}</span>
             <span className="stat-label">Awaiting Triage</span>
           </div>
-          <div className="admin-stat-card" style={{ "--stat-color": "#FFA6A6" }}>
+          <div
+            className="admin-stat-card violet"
+            onClick={() => setFilterStatus("Assigned")}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="stat-value">{stats.assigned}</span>
             <span className="stat-label">In Field View</span>
           </div>
-          <div className="admin-stat-card" style={{ "--stat-color": "#FFEDC7" }}>
+          <div
+            className="admin-stat-card green"
+            onClick={() => setFilterStatus("Completed")}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="stat-value">{stats.closed}</span>
             <span className="stat-label">Resolved Units</span>
           </div>
         </section>
 
+        {/* Ticket Detail Inspector Drawer */}
         {selectedComplaint && (
           <section className="complaint-details-glass">
             <div className="details-header">
-              <h2>Ticket Inspection</h2>
+              <h2>Ticket Inspection Drawer</h2>
               <button
                 onClick={() => setSelectedComplaint(null)}
                 className="close-details-btn"
@@ -163,7 +198,7 @@ const ComplaintsDashboardPage = () => {
 
               <div className="info-box" style={{ gridColumn: "1 / -1" }}>
                 <span className="info-label">Service Remarks</span>
-                <p className="info-content" style={{ fontWeight: 400, opacity: 0.8 }}>
+                <p className="info-content" style={{ fontWeight: 400, opacity: 0.85 }}>
                   {selectedComplaint.remarks || "No remarks provided."}
                 </p>
               </div>
@@ -186,9 +221,35 @@ const ComplaintsDashboardPage = () => {
           </section>
         )}
 
+        {/* Live Filter Controls Bar & Data Table */}
         <section className="admin-table-container">
-          <div className="table-header-row">
-            <h3>Live Ticker Output</h3>
+          <div className="table-controls-bar">
+            <div className="search-input-wrapper">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                className="table-search-input"
+                placeholder="Search by block, room, category, user..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button className="clear-search-btn" onClick={() => setSearchTerm("")}>✕</button>
+              )}
+            </div>
+
+            <div className="status-pill-filters">
+              {["All", "Pending", "Assigned", "In-Progress", "Completed"].map((st) => (
+                <button
+                  key={st}
+                  className={`filter-pill ${filterStatus === st ? 'active' : ''}`}
+                  onClick={() => setFilterStatus(st)}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+
             <button onClick={refresh} className="reset-filter-btn">Manual Sync ⟳</button>
           </div>
 
@@ -205,7 +266,7 @@ const ComplaintsDashboardPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {complaints.map((c) => {
+                {filteredComplaints.map((c) => {
                   const isAssigned = c.assignedTo && String(c.assignedTo._id || c.assignedTo) === String(user?.id || user?._id);
                   return (
                     <tr key={c._id} onClick={() => viewComplaintDetails(c)} style={{ cursor: 'pointer' }}>
@@ -230,7 +291,7 @@ const ComplaintsDashboardPage = () => {
                                   value={assignTarget.assignee}
                                   onChange={(e) => setAssignTarget({ ...assignTarget, assignee: e.target.value })}
                                 >
-                                  <option value="">User</option>
+                                  <option value="">Select Technician</option>
                                   {users?.filter(u => u.role !== 'SuperAdmin').map(u => (
                                     <option key={u._id} value={u._id}>{u.username}</option>
                                   ))}
@@ -251,12 +312,19 @@ const ComplaintsDashboardPage = () => {
                               <button onClick={(e) => { e.stopPropagation(); complaintService.updateStatus(c._id, "Completed").then(refresh); }} className="admin-action-btn btn-done">Finish</button>
                             </>
                           )}
-                          <button onClick={(e) => { e.stopPropagation(); viewComplaintDetails(c); }} className="admin-action-btn" style={{ background: 'rgba(255,255,255,0.1)' }}>Details</button>
+                          <button onClick={(e) => { e.stopPropagation(); viewComplaintDetails(c); }} className="admin-action-btn" style={{ background: 'rgba(255,255,255,0.08)', color: '#fff' }}>Details</button>
                         </div>
                       </td>
                     </tr>
-                  )
+                  );
                 })}
+                {filteredComplaints.length === 0 && (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '3.5rem', color: 'var(--text-muted)' }}>
+                      No ticket records found matching criteria.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

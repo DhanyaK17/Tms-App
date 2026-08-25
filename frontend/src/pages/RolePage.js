@@ -71,8 +71,13 @@ const RolePage = () => {
   return (
     <div className="master-screen animated-bg">
       <div className="screen-content">
+        
+        {/* Header Rail Card */}
         <header className="screen-header-rail">
-          <h1>Permission Matrix</h1>
+          <div>
+            <h1>Permission Matrix</h1>
+            <p className="info-label">User role authorization levels & access vector definitions</p>
+          </div>
           <button
             onClick={() => { setShowForm(!showForm); if (showForm) setEditingId(null); }}
             className="btn-primary"
@@ -83,6 +88,7 @@ const RolePage = () => {
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Toggled Form Glass Card */}
         {showForm && (
           <form className="master-form-glass" onSubmit={handleSubmit}>
             <div className="form-grid">
@@ -112,6 +118,7 @@ const RolePage = () => {
           </form>
         )}
 
+        {/* Master Table Card */}
         <section className="master-table-card">
           <div className="table-action-header">
             <h3>Authorization Registry</h3>
@@ -123,7 +130,7 @@ const RolePage = () => {
                 <tr>
                   <th>Designation</th>
                   <th>Permission Vectors</th>
-                  <th style={{ textAlign: 'right' }}>Action</th>
+                  <th style={{ textAlign: 'right' }}>Management</th>
                 </tr>
               </thead>
               <tbody>
@@ -139,8 +146,8 @@ const RolePage = () => {
                     </td>
                     <td>
                       <div className="action-btn-group">
-                        <button className="btn-icon-only" onClick={() => handleEdit(r)}>✎</button>
-                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(r._id)}>✕</button>
+                        <button className="btn-icon-only" onClick={() => handleEdit(r)}>✏️ Edit</button>
+                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(r._id)}>🗑️ Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -149,6 +156,7 @@ const RolePage = () => {
             </table>
           </div>
         </section>
+
       </div>
     </div>
   );

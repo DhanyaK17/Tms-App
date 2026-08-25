@@ -1,20 +1,14 @@
+/* RoomPage.css - Soft Rounded Cyber-Tech Room Management */
+
 .room-page {
-  max-width: 1200px;
+  max-width: 1350px;
   margin: 0 auto;
   padding: 3rem 2rem;
-  font-family: "Outfit", sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--text-main);
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  animation: fadeIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 .room-page-header {
@@ -22,90 +16,118 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2.5rem;
-  background: var(--sidebar-bg);
-  padding: 1.5rem 2rem;
-  border-radius: 20px;
-  border: 1px solid var(--border-soft);
+  background: var(--card-bg);
+  padding: 1.75rem 2.25rem;
+  border-radius: 28px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.12);
 }
 
 .room-page-header h1 {
-  font-size: 1.8rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #FFFFFF;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .primary-action-btn {
-  background: var(--primary);
-  color: #1e1e1e;
-  padding: 0.8rem 1.6rem;
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(0, 242, 254, 0.05) 100%);
+  color: var(--primary);
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.95rem;
-  border: none;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--primary);
   cursor: pointer;
   transition: var(--transition);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: none;
+  box-shadow: var(--shadow-glow);
 }
 
 .primary-action-btn:hover {
+  background: var(--primary);
+  color: #05070F;
+  box-shadow: 0 0 25px rgba(0, 242, 254, 0.5);
   transform: translateY(-2px);
-  background: var(--primary-hover);
 }
 
 .room-form-card {
   background: var(--card-bg);
   padding: 2.5rem;
-  border-radius: 24px;
-  border: 1px solid var(--border-soft);
+  border-radius: 28px;
+  border: 1px solid var(--glass-border);
   margin-bottom: 2.5rem;
   animation: slideDown 0.4s ease-out;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.12);
 }
 
 .form-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  gap: 1.75rem;
 }
 
 .form-group-item label {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .form-group-item input,
 .form-group-item select {
   width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  color: #000000;
-  background-color: #FFFFFF;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-family: var(--font-mono);
+  color: #FFFFFF;
+  background-color: rgba(12, 16, 29, 0.95);
   transition: var(--transition);
+}
+
+.form-group-item select option {
+  background: #0A0E1A;
+  color: #FFFFFF;
 }
 
 .form-group-item input:focus,
 .form-group-item select:focus {
   outline: none;
+  background-color: rgba(16, 22, 38, 1);
   border-color: var(--primary);
-  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.25), 0 0 15px rgba(0, 242, 254, 0.2);
 }
 
 .room-table-card {
   background: var(--card-bg);
   border-radius: 24px;
-  border: 1px solid var(--border-soft);
+  border: 1px solid var(--glass-border);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .room-table {
@@ -114,71 +136,86 @@
 }
 
 .room-table thead {
-  background-color: var(--sidebar-bg);
-  border-bottom: 1px solid var(--border-soft);
+  background-color: rgba(10, 14, 26, 0.95);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .room-table th {
-  padding: 1.25rem 1.5rem;
+  padding: 1.1rem 1.5rem;
   text-align: left;
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--primary);
   text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .room-table td {
-  padding: 1.25rem 1.5rem;
+  padding: 1.1rem 1.5rem;
   color: var(--text-main);
-  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(0, 242, 254, 0.06);
 }
 
-.room-table tr:hover {
-  background-color: rgba(255, 255, 255, 0.02);
+.room-table tr:hover td {
+  background-color: rgba(0, 242, 254, 0.06);
 }
 
 .edit-action-btn,
 .delete-action-btn {
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .edit-action-btn {
-  background-color: var(--primary);
-  color: #1e1e1e;
+  background-color: rgba(0, 242, 254, 0.12);
+  color: var(--primary);
+  border-color: rgba(0, 242, 254, 0.3);
 }
 
 .edit-action-btn:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
+  background-color: var(--primary);
+  color: #05070F;
+  box-shadow: var(--shadow-glow);
 }
 
 .delete-action-btn {
-  background: #ef4444;
-  color: white;
+  background: rgba(255, 8, 68, 0.12);
+  color: var(--accent-rose);
+  border-color: rgba(255, 8, 68, 0.3);
+  margin-left: 0.5rem;
+}
+
+.delete-action-btn:hover {
+  background: var(--accent-rose);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-glow-rose);
 }
 
 @media (max-width: 768px) {
   .room-page {
     padding: 1.5rem 1rem;
-    padding-top: 100px;
-    /* Space for floating navbar */
   }
 
   .room-page-header {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
     padding: 1.5rem;
     text-align: center;
+    border-radius: 20px;
   }
 
   .room-page-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
 
   .primary-action-btn {
@@ -192,15 +229,11 @@
   }
 
   .room-form-card {
-    padding: 1.5rem;
+    padding: 1.5rem 1.25rem;
+    border-radius: 20px;
   }
-}
 
-@media (max-width: 480px) {
-
-  .room-table td,
-  .room-table th {
-    padding: 1rem 0.75rem;
-    font-size: 0.75rem;
+  .room-table-card {
+    border-radius: 18px;
   }
 }

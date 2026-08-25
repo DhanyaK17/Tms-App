@@ -69,8 +69,13 @@ const DepartmentPage = () => {
   return (
     <div className="master-screen animated-bg">
       <div className="screen-content">
+        
+        {/* Header Rail Card */}
         <header className="screen-header-rail">
-          <h1>Department Hub</h1>
+          <div>
+            <h1>Department Hub</h1>
+            <p className="info-label">Department unit directory & code identifier mappings</p>
+          </div>
           <button
             onClick={() => { setShowForm(!showForm); if (showForm) setEditingId(null); }}
             className="btn-primary"
@@ -81,6 +86,7 @@ const DepartmentPage = () => {
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Toggled Form Glass Card */}
         {showForm && (
           <form className="master-form-glass" onSubmit={handleSubmit}>
             <div className="form-grid">
@@ -111,6 +117,7 @@ const DepartmentPage = () => {
           </form>
         )}
 
+        {/* Master Table Card */}
         <section className="master-table-card">
           <div className="table-action-header">
             <h3>Registry Output</h3>
@@ -132,8 +139,8 @@ const DepartmentPage = () => {
                     <td>{dept.shortName}</td>
                     <td>
                       <div className="action-btn-group">
-                        <button className="btn-icon-only" onClick={() => handleEdit(dept)}>✎</button>
-                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(dept._id)}>✕</button>
+                        <button className="btn-icon-only" onClick={() => handleEdit(dept)}>✏️ Edit</button>
+                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(dept._id)}>🗑️ Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -142,6 +149,7 @@ const DepartmentPage = () => {
             </table>
           </div>
         </section>
+
       </div>
     </div>
   );

@@ -77,8 +77,13 @@ const ProgrammePage = () => {
   return (
     <div className="master-screen animated-bg">
       <div className="screen-content">
+        
+        {/* Header Rail Card */}
         <header className="screen-header-rail">
-          <h1>Programme Management</h1>
+          <div>
+            <h1>Programme Management</h1>
+            <p className="info-label">Academic degree programmes & department mapping registry</p>
+          </div>
           <button
             onClick={() => { setShowForm(!showForm); if (showForm) setEditingId(null); }}
             className="btn-primary"
@@ -89,6 +94,7 @@ const ProgrammePage = () => {
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Toggled Form Glass Card */}
         {showForm && (
           <form className="master-form-glass" onSubmit={handleSubmit}>
             <div className="form-grid">
@@ -103,7 +109,7 @@ const ProgrammePage = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Code</label>
+                <label>Code Identifier</label>
                 <input
                   type="text"
                   value={formData.shortName}
@@ -132,6 +138,7 @@ const ProgrammePage = () => {
           </form>
         )}
 
+        {/* Master Table Card */}
         <section className="master-table-card">
           <div className="table-action-header">
             <h3>Programme Registry</h3>
@@ -155,8 +162,8 @@ const ProgrammePage = () => {
                     <td>{prog.department?.name || "N/A"}</td>
                     <td>
                       <div className="action-btn-group">
-                        <button className="btn-icon-only" onClick={() => handleEdit(prog)}>✎</button>
-                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(prog._id)}>✕</button>
+                        <button className="btn-icon-only" onClick={() => handleEdit(prog)}>✏️ Edit</button>
+                        <button className="btn-icon-only btn-delete-icon" onClick={() => handleDelete(prog._id)}>🗑️ Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -165,6 +172,7 @@ const ProgrammePage = () => {
             </table>
           </div>
         </section>
+
       </div>
     </div>
   );
