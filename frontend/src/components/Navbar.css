@@ -1,4 +1,4 @@
-/* Navbar.css - Ultra Responsive Floating Compact Top Navbar with Always Visible Logout */
+/* Navbar.css - Ultra Responsive Floating Compact Top Navbar with High-Contrast SVG Logout */
 
 .top-navbar-header {
   position: fixed;
@@ -226,28 +226,41 @@
   border-radius: 999px;
 }
 
-/* Always Visible Logout Button */
+/* Always Visible High-Contrast Logout Button */
 .top-logout-btn {
   width: 32px;
   height: 32px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 8, 68, 0.4);
-  background: rgba(255, 8, 68, 0.15);
+  border: 1px solid rgba(255, 77, 109, 0.6);
+  background: rgba(255, 8, 68, 0.22);
   border-radius: 50%;
-  color: #FF0844;
   cursor: pointer;
   transition: var(--transition);
-  font-size: 0.95rem;
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(255, 8, 68, 0.2);
+  box-shadow: 0 0 10px rgba(255, 8, 68, 0.3);
+  padding: 0;
+}
+
+.logout-svg-icon {
+  width: 16px !important;
+  height: 16px !important;
+  stroke: #FF4D6D !important;
+  stroke-width: 2.8px !important;
+  display: block !important;
+  flex-shrink: 0;
+  transition: var(--transition);
 }
 
 .top-logout-btn:hover {
-  background: var(--accent-rose);
-  color: #FFFFFF;
-  box-shadow: var(--shadow-glow-rose);
+  background: #FF0844;
+  border-color: #FF0844;
+  box-shadow: 0 0 16px rgba(255, 8, 68, 0.7);
+}
+
+.top-logout-btn:hover .logout-svg-icon {
+  stroke: #FFFFFF !important;
 }
 
 .top-mobile-toggle {
@@ -312,9 +325,9 @@
     padding: 0.65rem 1rem;
     width: 100%;
     border-radius: var(--radius-sm);
-    background: rgba(255, 8, 68, 0.15);
-    color: #FF0844;
-    border: 1px solid rgba(255, 8, 68, 0.35);
+    background: rgba(255, 8, 68, 0.2);
+    color: #FF4D6D;
+    border: 1px solid rgba(255, 77, 109, 0.4);
     font-family: var(--font-mono);
     font-weight: 700;
     font-size: 0.82rem;
@@ -324,10 +337,18 @@
     transition: var(--transition);
   }
 
+  .mobile-logout-btn .logout-svg-icon {
+    stroke: #FF4D6D !important;
+  }
+
   .mobile-logout-btn:hover {
     background: var(--accent-rose);
     color: #FFFFFF;
     box-shadow: var(--shadow-glow-rose);
+  }
+
+  .mobile-logout-btn:hover .logout-svg-icon {
+    stroke: #FFFFFF !important;
   }
 }
 
@@ -357,8 +378,12 @@
   }
 
   .top-logout-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 0.85rem;
+    width: 30px;
+    height: 30px;
+  }
+
+  .logout-svg-icon {
+    width: 15px !important;
+    height: 15px !important;
   }
 }
