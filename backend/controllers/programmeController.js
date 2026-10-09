@@ -15,6 +15,9 @@ exports.createProgramme = async (req, res) => {
       .status(201)
       .json({ message: "Programme created successfully", programme });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Programme with this name already exists" });
+    }
     res
       .status(500)
       .json({ message: "Failed to create programme", error: error.message });
@@ -66,6 +69,9 @@ exports.updateProgramme = async (req, res) => {
     }
     res.json({ message: "Programme updated successfully", programme });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Programme with this name already exists" });
+    }
     res
       .status(500)
       .json({ message: "Failed to update programme", error: error.message });

@@ -24,10 +24,11 @@ router.post(
   complaintController.createComplaint,
 );
 router.get("/stats", auth, complaintController.getStats);
+router.get("/report", auth, complaintController.generateReport);
 router.get("/", auth, complaintController.listComplaints);
+router.get("/:id", auth, complaintController.getComplaintById);
 router.patch("/:id/assign", auth, complaintController.assignComplaint);
 router.patch("/:id/status", auth, complaintController.updateStatus);
 router.delete("/:id", auth, complaintController.deleteComplaint);
-router.get("/report", auth, complaintController.generateReport);
 
 module.exports = router;

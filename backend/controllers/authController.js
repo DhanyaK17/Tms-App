@@ -6,8 +6,17 @@ exports.register = async (req, res) => {
   try {
     const { username, email, phone, password, role, department } = req.body;
 
+    const cleanEmail = email ? email.trim() : '';
+    const cleanUsername = username ? username.trim() : '';
+    const escapedEmail = cleanEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     // Check if user already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    const existingUser = await User.findOne({
+      $or: [
+        { email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') } },
+        { username: cleanUsername }
+      ]
+    });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -17,8 +26,8 @@ exports.register = async (req, res) => {
 
     // Create new user
     const user = new User({
-      username,
-      email,
+      username: cleanUsername,
+      email: cleanEmail.toLowerCase(),
       phone,
       password: hashedPassword,
       role,
@@ -40,7 +49,11 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const user = await User.findOne({ email }).select('+password').populate('department');
+    const cleanEmail = email.trim();
+    const escapedEmail = cleanEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') }
+    }).select('+password').populate('department');
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });

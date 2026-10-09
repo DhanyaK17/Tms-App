@@ -13,6 +13,9 @@ exports.createBlock = async (req, res) => {
     await block.save();
     res.status(201).json({ message: "Block created successfully", block });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Block with this name already exists" });
+    }
     res
       .status(500)
       .json({ message: "Failed to create block", error: error.message });
@@ -66,6 +69,9 @@ exports.updateBlock = async (req, res) => {
     }
     res.json({ message: "Block updated successfully", block });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Block with this name already exists" });
+    }
     res
       .status(500)
       .json({ message: "Failed to update block", error: error.message });

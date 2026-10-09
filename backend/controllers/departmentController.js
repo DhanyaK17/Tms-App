@@ -14,6 +14,9 @@ exports.createDepartment = async (req, res) => {
       .status(201)
       .json({ message: "Department created successfully", department });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Department with this name already exists" });
+    }
     res
       .status(500)
       .json({ message: "Failed to create department", error: error.message });
@@ -58,6 +61,9 @@ exports.updateDepartment = async (req, res) => {
     }
     res.json({ message: "Department updated successfully", department });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Department with this name already exists" });
+    }
     res
       .status(500)
       .json({ message: "Failed to update department", error: error.message });

@@ -6,21 +6,37 @@ exports.createUser = async (req, res) => {
     const { username, email, phone, password, role, department, programme } =
       req.body;
 
+    const cleanEmail = email ? email.trim().toLowerCase() : '';
+    const cleanUsername = username ? username.trim() : '';
+
+    const existingUser = await User.findOne({
+      $or: [
+        { email: { $regex: new RegExp(`^${cleanEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+        { username: cleanUsername },
+      ],
+    });
+    if (existingUser) {
+      return res.status(400).json({ message: "User with this username or email already exists" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
-      username,
-      email,
+      username: cleanUsername,
+      email: cleanEmail,
       phone,
       password: hashedPassword,
       role,
-      department,
-      programme,
+      department: department || undefined,
+      programme: programme || undefined,
     });
 
     await user.save();
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Username or email already in use" });
+    }
     res
       .status(500)
       .json({ message: "Failed to create user", error: error.message });
@@ -65,10 +81,21 @@ exports.getUserById = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { username, email, phone, role, department, programme } = req.body;
+    const { username, email, phone, password, role, department, programme } = req.body;
+    const updateData = {};
+    if (username !== undefined) updateData.username = username.trim();
+    if (email !== undefined) updateData.email = email.trim().toLowerCase();
+    if (phone !== undefined) updateData.phone = phone;
+    if (role !== undefined) updateData.role = role;
+    if (department !== undefined) updateData.department = department || null;
+    if (programme !== undefined) updateData.programme = programme || null;
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { username, email, phone, role, department, programme },
+      updateData,
       { new: true, runValidators: true },
     ).select("-password");
 
@@ -77,6 +104,9 @@ exports.updateUser = async (req, res) => {
     }
     res.json({ message: "User updated successfully", user });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Username or email already in use" });
+    }
     res
       .status(500)
       .json({ message: "Failed to update user", error: error.message });

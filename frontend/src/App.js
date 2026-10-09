@@ -1,171 +1,28 @@
-import React, { useContext } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { AuthContext, AuthProvider } from "./context/AuthContext";
-import Navbar from "./components/Navbar";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import DepartmentPage from "./pages/DepartmentPage";
-import ProgrammePage from "./pages/ProgrammePage";
-import BlockPage from "./pages/BlockPage";
-import RoomPage from "./pages/RoomPage";
-import RolePage from "./pages/RolePage";
-import UserPage from "./pages/UserPage";
-import ComplaintFormPage from "./pages/ComplaintFormPage";
-import ComplaintsDashboardPage from "./pages/ComplaintsDashboardPage";
-import UserComplaintDashboardPage from "./pages/UserComplaintDashboardPage";
-import ReportsPage from "./pages/ReportsPage";
-import ProfilePage from "./pages/ProfilePage";
-import "./App.css";
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { AuthProvider } from './context/AuthContext';
+import RootNavigator from './navigation/RootNavigator';
+import ErrorBoundary from './components/ErrorBoundary';
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useContext(AuthContext);
-
-  if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
-
-  return isAuthenticated ? (
-    <div className="app-layout">
-      <Navbar />
-      <main className="app-content">{children}</main>
-    </div>
-  ) : (
-    <Navigate to="/login" />
-  );
-};
-
-const SuperAdminRoute = ({ children }) => {
-  const { user, loading, isAuthenticated } = useContext(AuthContext);
-
-  if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
-
-  return isAuthenticated && user?.role === "SuperAdmin" ? (
-    <div className="app-layout">
-      <Navbar />
-      <main className="app-content">{children}</main>
-    </div>
-  ) : (
-    <Navigate to="/dashboard" />
-  );
-};
-
-
-function App() {
+export default function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* SuperAdmin Only Routes */}
-          <Route
-            path="/departments"
-            element={
-              <SuperAdminRoute>
-                <DepartmentPage />
-              </SuperAdminRoute>
-            }
-          />
-          <Route
-            path="/programmes"
-            element={
-              <SuperAdminRoute>
-                <ProgrammePage />
-              </SuperAdminRoute>
-            }
-          />
-          <Route
-            path="/blocks"
-            element={
-              <SuperAdminRoute>
-                <BlockPage />
-              </SuperAdminRoute>
-            }
-          />
-          <Route
-            path="/rooms"
-            element={
-              <SuperAdminRoute>
-                <RoomPage />
-              </SuperAdminRoute>
-            }
-          />
-          <Route
-            path="/roles"
-            element={
-              <SuperAdminRoute>
-                <RolePage />
-              </SuperAdminRoute>
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              <SuperAdminRoute>
-                <UserPage />
-              </SuperAdminRoute>
-            }
-          />
-          <Route
-            path="/complaints/new"
-            element={
-              <ProtectedRoute>
-                <ComplaintFormPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/my-complaints"
-            element={
-              <ProtectedRoute>
-                <UserComplaintDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/complaints"
-            element={
-              <ProtectedRoute>
-                <ComplaintsDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <SuperAdminRoute>
-                <ReportsPage />
-              </SuperAdminRoute>
-            }
-          />
-        </Routes>
-      </AuthProvider>
-    </Router>
+    <SafeAreaProvider style={styles.container}>
+      <ErrorBoundary>
+        <AuthProvider>
+          <StatusBar style="light" backgroundColor="#040810" />
+          <RootNavigator />
+        </AuthProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }
 
-export default App;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+});

@@ -1,8 +1,21 @@
 const Room = require("../models/Room");
+const Block = require("../models/Block");
 
 exports.createRoom = async (req, res) => {
   try {
-    const { roomNumber, department, programme, block } = req.body;
+    let { roomNumber, department, programme, block } = req.body;
+
+    if (!roomNumber) {
+      return res.status(400).json({ message: "Room number is required" });
+    }
+
+    if (block && (!programme || !department)) {
+      const blockDoc = await Block.findById(block);
+      if (blockDoc) {
+        if (!programme) programme = blockDoc.programme;
+        if (!department) department = blockDoc.department;
+      }
+    }
 
     const room = new Room({
       roomNumber,
@@ -14,6 +27,9 @@ exports.createRoom = async (req, res) => {
     await room.save();
     res.status(201).json({ message: "Room created successfully", room });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Room number already exists in this block" });
+    }
     res
       .status(500)
       .json({ message: "Failed to create room", error: error.message });
@@ -59,7 +75,16 @@ exports.getRoomById = async (req, res) => {
 
 exports.updateRoom = async (req, res) => {
   try {
-    const { roomNumber, department, programme, block } = req.body;
+    let { roomNumber, department, programme, block } = req.body;
+
+    if (block && (!programme || !department)) {
+      const blockDoc = await Block.findById(block);
+      if (blockDoc) {
+        if (!programme) programme = blockDoc.programme;
+        if (!department) department = blockDoc.department;
+      }
+    }
+
     const room = await Room.findByIdAndUpdate(
       req.params.id,
       { roomNumber, department, programme, block },
@@ -70,6 +95,9 @@ exports.updateRoom = async (req, res) => {
     }
     res.json({ message: "Room updated successfully", room });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Room number already exists in this block" });
+    }
     res
       .status(500)
       .json({ message: "Failed to update room", error: error.message });

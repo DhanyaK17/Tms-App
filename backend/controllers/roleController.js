@@ -12,6 +12,9 @@ exports.createRole = async (req, res) => {
     await role.save();
     res.status(201).json({ message: "Role created successfully", role });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Role with this name already exists" });
+    }
     res
       .status(500)
       .json({ message: "Failed to create role", error: error.message });
@@ -56,6 +59,9 @@ exports.updateRole = async (req, res) => {
     }
     res.json({ message: "Role updated successfully", role });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Role with this name already exists" });
+    }
     res
       .status(500)
       .json({ message: "Failed to update role", error: error.message });

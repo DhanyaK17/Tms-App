@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 
@@ -323,21 +324,29 @@ exports.generateReport = async (req, res) => {
     if (complaintType)
       filter.complaintType = { $regex: complaintType.trim(), $options: "i" };
     if (status) filter.status = status;
-    if (assignee) filter.assignedTo = assignee;
+    if (assignee && mongoose.Types.ObjectId.isValid(assignee)) {
+      filter.assignedTo = assignee;
+    }
 
     // If department or programme are provided, resolve their names and filter by name
     if (department) {
-      const deptDoc = await require("../models/Department").findById(
-        department,
-      );
-      if (deptDoc) {
-        filter.departmentName = deptDoc.name;
+      if (mongoose.Types.ObjectId.isValid(department)) {
+        const deptDoc = await require("../models/Department").findById(department);
+        if (deptDoc) {
+          filter.departmentName = deptDoc.name;
+        }
+      } else {
+        filter.departmentName = department;
       }
     }
     if (programme) {
-      const progDoc = await require("../models/Programme").findById(programme);
-      if (progDoc) {
-        filter.programmeName = progDoc.name;
+      if (mongoose.Types.ObjectId.isValid(programme)) {
+        const progDoc = await require("../models/Programme").findById(programme);
+        if (progDoc) {
+          filter.programmeName = progDoc.name;
+        }
+      } else {
+        filter.programmeName = programme;
       }
     }
 
@@ -358,5 +367,29 @@ exports.generateReport = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to generate report", error: error.message });
+  }
+};
+
+exports.getComplaintById = async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.id)
+      .populate({
+        path: "createdBy",
+        select: "username email department",
+        populate: { path: "department", select: "name" },
+      })
+      .populate({
+        path: "assignedTo",
+        select: "username email role department",
+        populate: { path: "department", select: "name" },
+      });
+    if (!complaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+    res.json(complaint);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch complaint", error: error.message });
   }
 };
