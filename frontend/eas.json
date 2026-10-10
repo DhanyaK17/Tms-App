@@ -8,7 +8,14 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://10.14.65.187:5000/api",
+        "EXPO_PUBLIC_FILE_URL": "http://10.14.65.187:5000"
+      }
     },
     "production": {
       "env": {
