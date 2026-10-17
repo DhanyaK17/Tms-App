@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
+import { SPACING } from '../constants/theme';
 import Button from './Button';
 
 export const EmptyState = ({
@@ -11,13 +12,23 @@ export const EmptyState = ({
   actionTitle = null,
   onAction = null,
 }) => {
+  const { colors, isDark } = useTheme();
+
   return (
     <View style={styles.container}>
-      <View style={styles.iconCircle}>
-        <Ionicons name={icon} size={36} color={COLORS.primary} />
+      <View
+        style={[
+          styles.iconCircle,
+          {
+            backgroundColor: `${colors.primary}15`,
+            borderColor: colors.borderLight,
+          },
+        ]}
+      >
+        <Ionicons name={icon} size={36} color={colors.primary} />
       </View>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{description}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      <Text style={[styles.description, { color: colors.textSecondary }]}>{description}</Text>
       {actionTitle && onAction && (
         <Button
           title={actionTitle}
@@ -42,22 +53,18 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'rgba(0, 229, 255, 0.08)',
     borderWidth: 1,
-    borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: SPACING.md,
   },
   title: {
-    color: COLORS.text,
     fontSize: 16,
     fontWeight: '700',
     marginBottom: 6,
     textAlign: 'center',
   },
   description: {
-    color: COLORS.textMuted,
     fontSize: 13,
     textAlign: 'center',
     maxWidth: 320,

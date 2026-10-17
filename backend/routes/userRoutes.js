@@ -14,6 +14,10 @@ router.post(
 
 router.get('/', authMiddleware, roleMiddleware(['SuperAdmin']), userController.getUsers);
 
+// Push notification token registration
+router.post('/push-token', authMiddleware, userController.savePushToken);
+router.delete('/push-token', authMiddleware, userController.removePushToken);
+
 router.get('/:id', authMiddleware, userController.getUserById);
 
 router.put(

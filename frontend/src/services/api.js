@@ -5,7 +5,10 @@ import { storage } from '../storage/storage';
 
 const getHostFromExpo = () => {
   try {
-    const hostUri = Constants?.expoConfig?.hostUri || Constants?.manifest?.debuggerHost;
+    const hostUri =
+      Constants?.expoConfig?.hostUri ||
+      Constants?.manifest?.debuggerHost ||
+      Constants?.manifest2?.extra?.expoGo?.debuggerHost;
     if (hostUri) {
       return hostUri.split(':')[0];
     }
@@ -16,39 +19,46 @@ const getHostFromExpo = () => {
 };
 
 const getApiUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1') && !envUrl.startsWith('http://10.')) {
-    return envUrl;
-  }
   if (Platform.OS === 'web') {
-    const host = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost';
+    const host =
+      typeof window !== 'undefined' && window.location.hostname
+        ? window.location.hostname
+        : 'localhost';
     return `http://${host}:5000/api`;
   }
   const expoHost = getHostFromExpo();
   if (expoHost) {
     return `http://${expoHost}:5000/api`;
   }
-  return envUrl || 'http://localhost:5000/api';
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl;
+  }
+  return 'http://10.14.65.187:5000/api';
 };
 
 const getFileUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_FILE_URL;
-  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1') && !envUrl.startsWith('http://10.')) {
-    return envUrl;
-  }
   if (Platform.OS === 'web') {
-    const host = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost';
+    const host =
+      typeof window !== 'undefined' && window.location.hostname
+        ? window.location.hostname
+        : 'localhost';
     return `http://${host}:5000`;
   }
   const expoHost = getHostFromExpo();
   if (expoHost) {
     return `http://${expoHost}:5000`;
   }
-  return envUrl || 'http://localhost:5000';
+  const envUrl = process.env.EXPO_PUBLIC_FILE_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl;
+  }
+  return 'http://10.14.65.187:5000';
 };
 
 export const API_BASE_URL = getApiUrl();
 export const FILE_BASE_URL = getFileUrl();
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.tms.mobileapp"
@@ -13,9 +13,15 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
-        "backgroundColor": "#080c14"
+        "backgroundColor": "#ffffff"
       },
-      "package": "com.tms.mobileapp"
+      "package": "com.tms.mobileapp",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED"
+      ]
     },
     "web": {
       "favicon": "./src/assets/favicon.png",
@@ -23,11 +29,18 @@
     },
     "plugins": [
       [
+        "expo-notifications",
+        {
+          "icon": "./src/assets/icon.png",
+          "color": "#00e5ff"
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./src/assets/splash.png",
           "resizeMode": "contain",
-          "backgroundColor": "#080c14"
+          "backgroundColor": "#ffffff"
         }
       ],
       [
@@ -49,7 +62,13 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
-    ]
+      ],
+      "expo-sharing"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6c6442a8-0025-46e7-a6e5-fca685435796"
+      }
+    }
   }
 }

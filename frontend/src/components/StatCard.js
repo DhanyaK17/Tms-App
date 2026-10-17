@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { COLORS, RADIUS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
+import { RADIUS, SPACING } from '../constants/theme';
 
 export const StatCard = ({
   title,
@@ -11,17 +12,19 @@ export const StatCard = ({
   active = false,
   style = null,
 }) => {
+  const { colors, isDark } = useTheme();
+
   const getThemeColor = () => {
     switch (color) {
       case 'amber':
-        return COLORS.amber;
+        return colors.amber;
       case 'violet':
-        return COLORS.violet;
+        return colors.violet;
       case 'green':
-        return COLORS.green;
+        return colors.green;
       case 'cyan':
       default:
-        return COLORS.cyan;
+        return colors.cyan;
     }
   };
 
@@ -33,14 +36,25 @@ export const StatCard = ({
       disabled={!onPress}
       style={({ pressed }) => [
         styles.card,
-        { borderLeftColor: accentColor },
-        active && { borderColor: accentColor, backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+        {
+          backgroundColor: colors.surfaceCard,
+          borderColor: colors.borderLight,
+          borderLeftColor: accentColor,
+        },
+        active && {
+          borderColor: accentColor,
+          backgroundColor: isDark
+            ? 'rgba(255, 255, 255, 0.05)'
+            : 'rgba(0, 131, 158, 0.06)',
+        },
         pressed && onPress && styles.pressed,
         style,
       ]}
     >
       <View style={styles.topRow}>
-        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">{title}</Text>
+        <Text style={[styles.title, { color: colors.textSecondary }]} numberOfLines={1} ellipsizeMode="tail">
+          {title}
+        </Text>
         {icon && <View style={[styles.iconBox, { backgroundColor: `${accentColor}20` }]}>{icon}</View>}
       </View>
       <Text style={[styles.value, { color: accentColor }]}>{value}</Text>
@@ -51,10 +65,8 @@ export const StatCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.surfaceCard,
     borderRadius: RADIUS.md,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
     borderLeftWidth: 4,
     padding: SPACING.md,
     position: 'relative',
@@ -73,7 +85,6 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     marginRight: 6,
-    color: COLORS.textSecondary,
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.8,

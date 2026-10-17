@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { programmeService, departmentService } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Input from '../components/Input';
@@ -23,6 +24,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const ProgrammeScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { width } = useResponsive();
 
   const [programmes, setProgrammes] = useState([]);
@@ -151,17 +153,17 @@ export const ProgrammeScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>Programme Directory</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Programme Directory</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               Academic degree programmes & departmental linkages
             </Text>
           </View>
@@ -175,7 +177,7 @@ export const ProgrammeScreen = ({ navigation }) => {
 
         {error ? (
           <View style={styles.errorBox}>
-            <Ionicons name="alert-circle" size={18} color={COLORS.red} style={{ marginRight: 8 }} />
+            <Ionicons name="alert-circle" size={18} color={colors.danger || '#ef4444'} style={{ marginRight: 8 }} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
@@ -201,13 +203,13 @@ export const ProgrammeScreen = ({ navigation }) => {
                   <Card style={styles.progCard}>
                     <View style={styles.progTop}>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.progName}>{prog.name}</Text>
+                        <Text style={[styles.progName, { color: colors.text }]}>{prog.name}</Text>
                         <View style={styles.badgeRow}>
                           <View style={styles.codeTag}>
                             <Text style={styles.codeText}>{prog.shortName}</Text>
                           </View>
-                          <View style={styles.deptTag}>
-                            <Text style={styles.deptTagText}>{deptName}</Text>
+                          <View style={[styles.deptTag, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]}>
+                            <Text style={[styles.deptTagText, { color: colors.textSecondary }]}>{deptName}</Text>
                           </View>
                         </View>
                       </View>
@@ -229,7 +231,7 @@ export const ProgrammeScreen = ({ navigation }) => {
                       </View>
                     </View>
                     {prog.description ? (
-                      <Text style={styles.progDesc}>{prog.description}</Text>
+                      <Text style={[styles.progDesc, { color: colors.textMuted }]}>{prog.description}</Text>
                     ) : null}
                   </Card>
                 </View>
@@ -258,17 +260,22 @@ export const ProgrammeScreen = ({ navigation }) => {
               placeholder="e.g. CSE"
             />
 
-            <Text style={styles.fieldLabel}>Mapped Department *</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Mapped Department *</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
               {departments.map((d) => (
                 <Pressable
                   key={d._id}
-                  style={[styles.pill, formData.department === d._id && styles.pillActive]}
+                  style={[
+                    styles.pill,
+                    { borderColor: colors.borderLight },
+                    formData.department === d._id && styles.pillActive,
+                  ]}
                   onPress={() => setFormData({ ...formData, department: d._id })}
                 >
                   <Text
                     style={[
                       styles.pillText,
+                      { color: colors.textSecondary },
                       formData.department === d._id && styles.pillTextActive,
                     ]}
                   >

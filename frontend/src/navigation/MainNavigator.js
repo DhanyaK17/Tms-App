@@ -4,13 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigationState } from '@react-navigation/native';
 import Header from '../components/Header';
-import { COLORS } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
 import ComplaintsDashboardScreen from '../screens/ComplaintsDashboardScreen';
 import UserComplaintDashboardScreen from '../screens/UserComplaintDashboardScreen';
 import ComplaintFormScreen from '../screens/ComplaintFormScreen';
+import ComplaintTrackingScreen from '../screens/ComplaintTrackingScreen';
 import DepartmentScreen from '../screens/DepartmentScreen';
 import ProgrammeScreen from '../screens/ProgrammeScreen';
 import BlockScreen from '../screens/BlockScreen';
@@ -23,6 +24,8 @@ import ProfileScreen from '../screens/ProfileScreen';
 const Stack = createNativeStackNavigator();
 
 export const MainNavigator = ({ navigation }) => {
+  const { colors, isDark } = useTheme();
+
   const currentRouteName = useNavigationState((state) => {
     if (!state) return 'Home';
     const route = state.routes[state.index];
@@ -30,20 +33,23 @@ export const MainNavigator = ({ navigation }) => {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#040810" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.headerBg}
+      />
       <Header
         currentRoute={currentRouteName}
-        onNavigate={(routeName) => {
-          navigation.navigate(routeName);
+        onNavigate={(routeName, params) => {
+          navigation.navigate(routeName, params);
         }}
       />
-      <View style={styles.content}>
+      <View style={[styles.content, { backgroundColor: colors.background }]}>
         <Stack.Navigator
           initialRouteName="Home"
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: COLORS.background },
+            contentStyle: { backgroundColor: colors.background },
             animation: Platform.OS === 'web' ? 'none' : 'default',
           }}
         >
@@ -51,6 +57,7 @@ export const MainNavigator = ({ navigation }) => {
           <Stack.Screen name="Complaints" component={ComplaintsDashboardScreen} />
           <Stack.Screen name="UserComplaints" component={UserComplaintDashboardScreen} />
           <Stack.Screen name="ComplaintForm" component={ComplaintFormScreen} />
+          <Stack.Screen name="ComplaintTracking" component={ComplaintTrackingScreen} />
           <Stack.Screen name="Departments" component={DepartmentScreen} />
           <Stack.Screen name="Programmes" component={ProgrammeScreen} />
           <Stack.Screen name="Blocks" component={BlockScreen} />
@@ -68,11 +75,9 @@ export const MainNavigator = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#040810',
   },
   content: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
 });
 

@@ -17,6 +17,7 @@ import {
   userService,
   FILE_BASE_URL,
 } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
@@ -29,6 +30,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const ComplaintsDashboardScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { width } = useResponsive();
 
   const [complaints, setComplaints] = useState([]);
@@ -131,18 +133,18 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         {/* Header */}
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>Global Oversight Console</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Global Oversight Console</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               Centralized complaint management & field technician dispatch
             </Text>
           </View>
@@ -204,18 +206,18 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
 
         {/* Search & Status Pills Filter Bar */}
         <Card style={styles.filterCard}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={18} color={COLORS.textSecondary} style={{ marginRight: 8 }} />
+          <View style={[styles.searchBar, { backgroundColor: colors.inputBg, borderColor: colors.borderLight }]}>
+            <Ionicons name="search" size={18} color={colors.textSecondary} style={{ marginRight: 8 }} />
             <TextInput
               value={searchTerm}
               onChangeText={setSearchTerm}
               placeholder="Filter by block, room, type, user or keyword..."
-              placeholderTextColor={COLORS.textMuted}
-              style={styles.searchInput}
+              placeholderTextColor={colors.textMuted}
+              style={[styles.searchInput, { color: colors.text }]}
             />
             {searchTerm ? (
               <Pressable onPress={() => setSearchTerm('')} hitSlop={8} style={{ padding: 4 }}>
-                <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+                <Ionicons name="close-circle" size={18} color={colors.textMuted} />
               </Pressable>
             ) : null}
           </View>
@@ -224,11 +226,21 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
             {['All', 'Pending', 'Assigned', 'In-Progress', 'Completed'].map((st) => (
               <Pressable
                 key={st}
-                style={[styles.pill, filterStatus === st && styles.pillActive]}
+                style={[
+                  styles.pill,
+                  { backgroundColor: colors.surfaceLight, borderColor: colors.borderLight },
+                  filterStatus === st && { backgroundColor: `${colors.primary}20`, borderColor: colors.primary },
+                ]}
                 onPress={() => setFilterStatus(st)}
               >
-                <Text style={[styles.pillText, filterStatus === st && styles.pillTextActive]}>
-                  {st}
+                <Text
+                  style={[
+                    styles.pillText,
+                    { color: colors.textSecondary },
+                    filterStatus === st && { color: colors.primary, fontWeight: '800' },
+                  ]}
+                >
+                  {st === 'Completed' ? 'Resolved' : st}
                 </Text>
               </Pressable>
             ))}
@@ -260,41 +272,42 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
                   key={ticket._id}
                   style={({ pressed }) => [
                     styles.ticketCard,
+                    { backgroundColor: colors.surfaceCard, borderColor: colors.borderLight },
                     pressed && styles.cardPressed,
                   ]}
                   onPress={() => setSelectedComplaint(ticket)}
                 >
                   <View style={styles.ticketTop}>
                     <View>
-                      <Text style={styles.ticketLocation}>
+                      <Text style={[styles.ticketLocation, { color: colors.text }]}>
                         {ticket.blockName} • {ticket.roomNumber}
                       </Text>
-                      <Text style={styles.ticketType}>{ticket.complaintType}</Text>
+                      <Text style={[styles.ticketType, { color: colors.primary }]}>{ticket.complaintType}</Text>
                     </View>
                     <Badge status={ticket.status} />
                   </View>
 
-                  <Text style={styles.ticketRemarks} numberOfLines={2}>
+                  <Text style={[styles.ticketRemarks, { color: colors.textSecondary }]} numberOfLines={2}>
                     {ticket.remarks || 'No remarks provided.'}
                   </Text>
 
-                  <View style={styles.ticketMetaRow}>
+                  <View style={[styles.ticketMetaRow, { borderTopColor: colors.borderLight }]}>
                     <View style={styles.metaItem}>
-                      <Ionicons name="calendar-outline" size={13} color={COLORS.textMuted} />
-                      <Text style={styles.metaText}>
+                      <Ionicons name="calendar-outline" size={13} color={colors.textMuted} />
+                      <Text style={[styles.metaText, { color: colors.textMuted }]}>
                         {new Date(ticket.createdAt).toLocaleDateString()}
                       </Text>
                     </View>
                     <View style={styles.metaItem}>
-                      <Ionicons name="person-outline" size={13} color={COLORS.textMuted} />
-                      <Text style={styles.metaText}>
+                      <Ionicons name="person-outline" size={13} color={colors.textMuted} />
+                      <Text style={[styles.metaText, { color: colors.textMuted }]}>
                         {ticket.createdBy?.username || 'Anonymous'}
                       </Text>
                     </View>
                     {ticket.assignedTo && (
                       <View style={styles.metaItem}>
-                        <Ionicons name="construct-outline" size={13} color={COLORS.primary} />
-                        <Text style={[styles.metaText, { color: COLORS.primary }]}>
+                        <Ionicons name="construct-outline" size={13} color={colors.primary} />
+                        <Text style={[styles.metaText, { color: colors.primary }]}>
                           {ticket.assignedTo?.username || 'Staff'}
                         </Text>
                       </View>
@@ -338,11 +351,18 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
                       )}
 
                     <Button
+                      title="Track Live"
+                      onPress={() => navigation.navigate('ComplaintTracking', { complaintId: ticket._id, complaint: ticket })}
+                      variant="primary"
+                      size="sm"
+                      icon={<Ionicons name="navigate-outline" size={13} color={colors.textDark} />}
+                      style={{ marginLeft: 'auto', marginRight: 6 }}
+                    />
+                    <Button
                       title="Inspect"
                       onPress={() => setSelectedComplaint(ticket)}
                       variant="outline"
                       size="sm"
-                      style={{ marginLeft: 'auto' }}
                     />
                   </View>
                 </Pressable>
@@ -361,54 +381,54 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
             <View style={styles.inspectContent}>
               <View style={styles.inspectGrid}>
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Facility Location</Text>
-                  <Text style={styles.inspectValue}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Facility Location</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>
                     {selectedComplaint.blockName} • {selectedComplaint.roomNumber}
                   </Text>
                 </View>
 
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Service Category</Text>
-                  <Text style={styles.inspectValue}>{selectedComplaint.complaintType}</Text>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Service Category</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>{selectedComplaint.complaintType}</Text>
                 </View>
 
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Current Status</Text>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Current Status</Text>
                   <Badge status={selectedComplaint.status} />
                 </View>
 
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Submitted On</Text>
-                  <Text style={styles.inspectValue}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Submitted On</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>
                     {new Date(selectedComplaint.createdAt).toLocaleString()}
                   </Text>
                 </View>
 
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Originator</Text>
-                  <Text style={styles.inspectValue}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Originator</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>
                     {selectedComplaint.createdBy?.username || 'Anonymous'}
                   </Text>
                 </View>
 
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Assigned Technician</Text>
-                  <Text style={styles.inspectValue}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Assigned Technician</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>
                     {selectedComplaint.assignedTo?.username || 'Unassigned'}
                   </Text>
                 </View>
               </View>
 
-              <View style={styles.inspectFullSection}>
-                <Text style={styles.inspectLabel}>Operational Remarks</Text>
-                <Text style={styles.inspectRemarks}>
+              <View style={[styles.inspectFullSection, { borderTopColor: colors.borderLight }]}>
+                <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Operational Remarks</Text>
+                <Text style={[styles.inspectRemarks, { color: colors.text }]}>
                   {selectedComplaint.remarks || 'No remarks provided.'}
                 </Text>
               </View>
 
               {selectedComplaint.attachment && (
-                <View style={styles.inspectFullSection}>
-                  <Text style={styles.inspectLabel}>Evidentiary Attachment</Text>
+                <View style={[styles.inspectFullSection, { borderTopColor: colors.borderLight }]}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Evidentiary Attachment</Text>
                   <Button
                     title="View Document / Photo ↗"
                     onPress={() => {
@@ -452,6 +472,19 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
                   />
                 )}
               </View>
+
+              {/* Direct Link to Live Tracking */}
+              <Button
+                title="Launch Live Tracking Radar 📍"
+                onPress={() => {
+                  const c = selectedComplaint;
+                  setSelectedComplaint(null);
+                  navigation.navigate('ComplaintTracking', { complaintId: c._id, complaint: c });
+                }}
+                variant="primary"
+                size="md"
+                style={{ marginTop: SPACING.md }}
+              />
             </View>
           )}
         </ModalView>
@@ -463,7 +496,7 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
           title="Dispatch Technician"
         >
           <View>
-            <Text style={styles.fieldLabel}>Select Technician / Staff *</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Select Technician / Staff *</Text>
             <ScrollView style={{ maxHeight: 240, marginBottom: SPACING.md }}>
               {users
                 ?.filter((u) => u.role !== 'SuperAdmin')
@@ -472,16 +505,23 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
                     key={u._id}
                     style={[
                       styles.assignUserItem,
-                      assignModal.assignee === u._id && styles.assignUserItemActive,
+                      {
+                        backgroundColor: colors.surfaceLight,
+                        borderColor: colors.borderLight,
+                      },
+                      assignModal.assignee === u._id && {
+                        borderColor: colors.primary,
+                        backgroundColor: isDark ? 'rgba(0, 229, 255, 0.12)' : 'rgba(0, 131, 158, 0.15)',
+                      },
                     ]}
                     onPress={() => setAssignModal({ ...assignModal, assignee: u._id })}
                   >
                     <View>
-                      <Text style={styles.assignUserName}>{u.username}</Text>
-                      <Text style={styles.assignUserRole}>{u.role}</Text>
+                      <Text style={[styles.assignUserName, { color: colors.text }]}>{u.username}</Text>
+                      <Text style={[styles.assignUserRole, { color: colors.primary }]}>{u.role}</Text>
                     </View>
                     {assignModal.assignee === u._id && (
-                      <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />
+                      <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
                     )}
                   </Pressable>
                 ))}

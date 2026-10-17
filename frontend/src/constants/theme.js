@@ -1,4 +1,4 @@
-export const COLORS = {
+export const DARK_COLORS = {
   // Backgrounds
   background: '#080c14',
   surface: '#0d1524',
@@ -39,9 +39,71 @@ export const COLORS = {
   textMuted: '#64748b',
   textDark: '#0a0f18',
 
-  // Overlays
+  // Overlays & Inputs
+  inputBg: 'rgba(255, 255, 255, 0.03)',
   overlay: 'rgba(4, 8, 16, 0.85)',
+  cardShadow: 'rgba(0, 0, 0, 0.35)',
+  headerBg: '#080c14',
+  floatingBarBg: 'rgba(13, 21, 36, 0.95)',
+  divider: 'rgba(255, 255, 255, 0.08)',
 };
+
+export const LIGHT_COLORS = {
+  // Backgrounds
+  background: '#f1f5f9',
+  surface: '#ffffff',
+  surfaceLight: '#f8fafc',
+  surfaceCard: '#ffffff',
+  surfaceHover: '#e2e8f0',
+
+  // Borders
+  border: 'rgba(0, 131, 158, 0.2)',
+  borderLight: '#e2e8f0',
+  borderActive: '#00839e',
+
+  // Core Accents
+  primary: '#00839e',
+  primaryDark: '#00667a',
+  primaryGlow: 'rgba(0, 131, 158, 0.2)',
+  secondary: '#7928ca',
+  secondaryGlow: 'rgba(121, 40, 202, 0.2)',
+
+  // Status Colors
+  cyan: '#00839e',
+  amber: '#d97706',
+  violet: '#7e22ce',
+  green: '#059669',
+  red: '#dc2626',
+  blue: '#2563eb',
+
+  // Status mapping
+  statusPending: '#d97706',
+  statusAssigned: '#7e22ce',
+  statusProgress: '#0284c7',
+  statusOnhold: '#ea580c',
+  statusCompleted: '#059669',
+
+  // Text
+  text: '#0f172a',
+  textSecondary: '#475569',
+  textMuted: '#64748b',
+  textDark: '#ffffff',
+
+  // Overlays & Inputs
+  inputBg: '#ffffff',
+  overlay: 'rgba(15, 23, 42, 0.65)',
+  cardShadow: 'rgba(15, 23, 42, 0.08)',
+  headerBg: '#ffffff',
+  floatingBarBg: 'rgba(255, 255, 255, 0.98)',
+  divider: '#e2e8f0',
+};
+
+export const getColors = (theme = 'dark') => {
+  return theme === 'light' ? LIGHT_COLORS : DARK_COLORS;
+};
+
+// Default export COLORS for backward compatibility
+export const COLORS = DARK_COLORS;
 
 export const SPACING = {
   xs: 4,
@@ -73,27 +135,22 @@ export const TYPOGRAPHY = {
     fontSize: 26,
     fontWeight: '900',
     letterSpacing: 0.5,
-    color: COLORS.text,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: 0.8,
-    color: COLORS.text,
   },
   cardTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: COLORS.text,
   },
   body: {
     fontSize: 14,
-    color: COLORS.textSecondary,
     lineHeight: 20,
   },
   caption: {
     fontSize: 12,
-    color: COLORS.textMuted,
   },
 };
 
@@ -113,7 +170,7 @@ export const SHADOWS = {
     elevation: 4,
   },
   glow: {
-    shadowColor: COLORS.primary,
+    shadowColor: '#00e5ff',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
@@ -121,4 +178,4 @@ export const SHADOWS = {
   },
 };
 
-export default { COLORS, SPACING, RADIUS, FONTS, TYPOGRAPHY, SHADOWS };
+export default { COLORS, DARK_COLORS, LIGHT_COLORS, getColors, SPACING, RADIUS, FONTS, TYPOGRAPHY, SHADOWS };

@@ -1,12 +1,14 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { NavigationContainer, getStateFromPath } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import LoginScreen from '../screens/LoginScreen';
 import MainNavigator from './MainNavigator';
 import LoadingScreen from '../components/LoadingScreen';
-import { COLORS } from '../constants/theme';
+import { navigationRef } from './navigationRef';
+import { registerForPushNotificationsAsync, setupNotificationListeners } from '../services/notificationService';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +26,7 @@ const linking = {
           Complaints: 'complaints',
           UserComplaints: 'my-complaints',
           ComplaintForm: 'complaints/new',
+          ComplaintTracking: 'track/:complaintId',
           Departments: 'departments',
           Programmes: 'programmes',
           Blocks: 'blocks',
@@ -52,6 +55,34 @@ const linking = {
 
 export const RootNavigator = () => {
   const { isAuthenticated, loading } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
+
+  // Register push notifications when user is authenticated (native platforms only)
+  useEffect(() => {
+    if (isAuthenticated && Platform.OS !== 'web') {
+      registerForPushNotificationsAsync().catch((err) =>
+        console.warn('Push registration error on login:', err)
+      );
+    }
+  }, [isAuthenticated]);
+
+  // Listen for push notification responses (taps on native platforms only)
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+
+    const cleanup = setupNotificationListeners((complaintId) => {
+      if (navigationRef.isReady()) {
+        navigationRef.navigate('Main', {
+          screen: 'ComplaintTracking',
+          params: { complaintId },
+        });
+      }
+    });
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, []);
 
   if (loading) {
     return <LoadingScreen message="AUTHENTICATING OPERATOR SESSION..." />;
@@ -59,16 +90,17 @@ export const RootNavigator = () => {
 
   return (
     <NavigationContainer
+      ref={navigationRef}
       linking={Platform.OS === 'web' ? linking : undefined}
       theme={{
-        dark: true,
+        dark: isDark,
         colors: {
-          primary: COLORS.primary,
-          background: COLORS.background,
-          card: COLORS.surface,
-          text: COLORS.text,
-          border: COLORS.border,
-          notification: COLORS.primary,
+          primary: colors.primary,
+          background: colors.background,
+          card: colors.surface,
+          text: colors.text,
+          border: colors.border,
+          notification: colors.primary,
         },
       }}
     >
@@ -76,7 +108,7 @@ export const RootNavigator = () => {
         initialRouteName={!isAuthenticated ? 'Login' : 'Main'}
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: COLORS.background },
+          contentStyle: { backgroundColor: colors.background },
         }}
       >
         {!isAuthenticated ? (

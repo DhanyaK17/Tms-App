@@ -8,15 +8,18 @@ import {
   Modal,
   Platform,
   KeyboardAvoidingView,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import { useResponsive } from '../utils/responsive';
 import Badge from './Badge';
 
 export const Header = ({ currentRoute, onNavigate }) => {
   const { user, logout, isAuthenticated } = useContext(AuthContext);
+  const { colors, isDark, toggleTheme } = useTheme();
   const { isMobile, isSmallMobile, width } = useResponsive();
   const [popupMenuOpen, setPopupMenuOpen] = useState(false);
 
@@ -106,20 +109,33 @@ export const Header = ({ currentRoute, onNavigate }) => {
   const showWideNav = width >= 900;
 
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, { backgroundColor: colors.headerBg }]}>
       {/* Floating Island Pop-up Capsule Navbar */}
-      <View style={[styles.floatingBar, isSmallMobile && styles.floatingBarSmall]}>
-        {/* Left: Brand Identity */}
+      <View
+        style={[
+          styles.floatingBar,
+          {
+            backgroundColor: colors.floatingBarBg,
+            borderColor: colors.border,
+          },
+          isSmallMobile && styles.floatingBarSmall,
+        ]}
+      >
+        {/* Left: Brand Identity with Custom Logo */}
         <Pressable
           style={({ pressed }) => [styles.brand, pressed && styles.brandPressed]}
           onPress={() => navTo('Home')}
         >
-          <View style={styles.logoBadge}>
-            <Text style={styles.logoBadgeText}>T</Text>
+          <View style={[styles.logoBadge, { backgroundColor: '#ffffff', borderColor: colors.borderLight }]}>
+            <Image
+              source={require('../assets/logo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
           <View>
-            <Text style={styles.brandTitle}>TMS</Text>
-            <Text style={styles.brandSub}>PLATFORM</Text>
+            <Text style={[styles.brandTitle, { color: colors.text }]}>TMS</Text>
+            <Text style={[styles.brandSub, { color: colors.primary }]}>PLATFORM</Text>
           </View>
         </Pressable>
 
@@ -171,23 +187,53 @@ export const Header = ({ currentRoute, onNavigate }) => {
 
         {/* Right: Controls & Mobile Pop-up Trigger */}
         <View style={styles.rightControls}>
+          {/* Universal Theme Toggle (Sun/Moon) */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.themeToggleBtn,
+              {
+                backgroundColor: colors.surfaceLight,
+                borderColor: colors.borderLight,
+              },
+              pressed && styles.btnPressed,
+            ]}
+            onPress={toggleTheme}
+            hitSlop={8}
+            accessibilityLabel={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+          >
+            <Ionicons
+              name={isDark ? 'sunny' : 'moon'}
+              size={15}
+              color={isDark ? colors.amber : colors.primary}
+            />
+            {!isSmallMobile && (
+              <Text style={[styles.themeToggleText, { color: colors.textSecondary }]}>
+                {isDark ? 'Light' : 'Dark'}
+              </Text>
+            )}
+          </Pressable>
+
           {isAuthenticated && (
             <Pressable
-              style={({ pressed }) => [styles.userChip, pressed && styles.chipPressed]}
+              style={({ pressed }) => [
+                styles.userChip,
+                { backgroundColor: colors.surfaceLight, borderColor: colors.borderLight },
+                pressed && styles.chipPressed,
+              ]}
               onPress={() => navTo('Profile')}
             >
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
+              <View style={[styles.avatar, { backgroundColor: `${colors.primary}25`, borderColor: colors.primary }]}>
+                <Text style={[styles.avatarText, { color: colors.primary }]}>
                   {user?.username?.charAt(0).toUpperCase() || 'U'}
                 </Text>
-                <View style={styles.onlineDot} />
+                <View style={[styles.onlineDot, { borderColor: colors.surface }]} />
               </View>
               {!isMobile && (
                 <View style={styles.userInfo}>
-                  <Text style={styles.userName} numberOfLines={1}>
+                  <Text style={[styles.userName, { color: colors.text }]} numberOfLines={1}>
                     {user?.username}
                   </Text>
-                  <Text style={styles.userRole}>{user?.role}</Text>
+                  <Text style={[styles.userRole, { color: colors.primary }]}>{user?.role}</Text>
                 </View>
               )}
             </Pressable>
@@ -198,6 +244,7 @@ export const Header = ({ currentRoute, onNavigate }) => {
             <Pressable
               style={({ pressed }) => [
                 styles.mobilePopLauncher,
+                { backgroundColor: colors.surfaceLight, borderColor: colors.borderLight },
                 popupMenuOpen && styles.mobilePopLauncherActive,
                 pressed && styles.btnPressed,
               ]}
@@ -207,9 +254,9 @@ export const Header = ({ currentRoute, onNavigate }) => {
               <Ionicons
                 name={popupMenuOpen ? 'close' : 'apps'}
                 size={18}
-                color={COLORS.primary}
+                color={colors.primary}
               />
-              <Text style={styles.mobilePopLauncherText}>
+              <Text style={[styles.mobilePopLauncherText, { color: colors.primary }]}>
                 {popupMenuOpen ? 'Close' : 'Menu'}
               </Text>
             </Pressable>
@@ -218,11 +265,15 @@ export const Header = ({ currentRoute, onNavigate }) => {
           {/* Desktop Fast Logout */}
           {isAuthenticated && !isMobile && (
             <Pressable
-              style={({ pressed }) => [styles.logoutBtn, pressed && styles.btnPressed]}
+              style={({ pressed }) => [
+                styles.logoutBtn,
+                { backgroundColor: colors.surfaceLight, borderColor: colors.borderLight },
+                pressed && styles.btnPressed,
+              ]}
               onPress={handleLogout}
               hitSlop={8}
             >
-              <Ionicons name="log-out-outline" size={17} color={COLORS.red} />
+              <Ionicons name="log-out-outline" size={17} color={colors.red} />
             </Pressable>
           )}
         </View>
@@ -245,25 +296,25 @@ export const Header = ({ currentRoute, onNavigate }) => {
           <Pressable style={styles.popBackdrop} onPress={() => setPopupMenuOpen(false)} />
 
           {/* Floating Pop-up Card */}
-          <View style={[styles.popCard, isSmallMobile && styles.popCardSmall]}>
+          <View style={[styles.popCard, { backgroundColor: colors.surfaceCard, borderColor: colors.border }, isSmallMobile && styles.popCardSmall]}>
             {/* Pop-up Top Neon Header */}
-            <View style={styles.popHeader}>
+            <View style={[styles.popHeader, { borderBottomColor: colors.borderLight }]}>
               <View style={styles.popHeaderBrand}>
-                <View style={styles.popBadgeMini}>
-                  <Text style={styles.popBadgeMiniText}>T</Text>
+                <View style={[styles.popBadgeMini, { backgroundColor: '#ffffff', overflow: 'hidden' }]}>
+                  <Image source={require('../assets/logo.png')} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
                 </View>
                 <View>
-                  <Text style={styles.popHeaderTitle}>TMS NAVIGATION HUB</Text>
-                  <Text style={styles.popHeaderSubtitle}>SYSTEM COMMAND MATRIX</Text>
+                  <Text style={[styles.popHeaderTitle, { color: colors.text }]}>TMS NAVIGATION HUB</Text>
+                  <Text style={[styles.popHeaderSubtitle, { color: colors.primary }]}>SYSTEM COMMAND MATRIX</Text>
                 </View>
               </View>
 
               <Pressable
-                style={({ pressed }) => [styles.popCloseBtn, pressed && styles.btnPressed]}
+                style={({ pressed }) => [styles.popCloseBtn, { backgroundColor: colors.surfaceLight }, pressed && styles.btnPressed]}
                 onPress={() => setPopupMenuOpen(false)}
                 hitSlop={10}
               >
-                <Ionicons name="close" size={20} color={COLORS.textSecondary} />
+                <Ionicons name="close" size={20} color={colors.textSecondary} />
               </Pressable>
             </View>
 
@@ -275,25 +326,29 @@ export const Header = ({ currentRoute, onNavigate }) => {
               {/* User Identity Pod inside Pop-up */}
               {isAuthenticated && (
                 <Pressable
-                  style={({ pressed }) => [styles.popUserCard, pressed && styles.chipPressed]}
+                  style={({ pressed }) => [
+                    styles.popUserCard,
+                    { backgroundColor: colors.surfaceLight, borderColor: colors.borderLight },
+                    pressed && styles.chipPressed,
+                  ]}
                   onPress={() => navTo('Profile')}
                 >
-                  <View style={styles.popUserAvatar}>
-                    <Text style={styles.popUserAvatarText}>
+                  <View style={[styles.popUserAvatar, { backgroundColor: `${colors.primary}20`, borderColor: colors.primary }]}>
+                    <Text style={[styles.popUserAvatarText, { color: colors.primary }]}>
                       {user?.username?.charAt(0).toUpperCase() || 'U'}
                     </Text>
-                    <View style={styles.onlineDotLarge} />
+                    <View style={[styles.onlineDotLarge, { borderColor: colors.surfaceCard }]} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={styles.popUserNameRow}>
-                      <Text style={styles.popUserName}>{user?.username}</Text>
+                      <Text style={[styles.popUserName, { color: colors.text }]}>{user?.username}</Text>
                       <Badge status={user?.role} size="sm" style={{ marginLeft: 6 }} />
                     </View>
-                    <Text style={styles.popUserEmail}>{user?.email}</Text>
+                    <Text style={[styles.popUserEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
                   </View>
-                  <View style={styles.popProfileLink}>
-                    <Text style={styles.popProfileLinkText}>Profile</Text>
-                    <Ionicons name="chevron-forward" size={14} color={COLORS.primary} />
+                  <View style={[styles.popProfileLink, { backgroundColor: isDark ? 'rgba(0, 229, 255, 0.08)' : 'rgba(0, 163, 255, 0.1)', borderColor: isDark ? 'rgba(0, 229, 255, 0.25)' : 'rgba(0, 163, 255, 0.3)' }]}>
+                    <Text style={[styles.popProfileLinkText, { color: colors.primary }]}>Profile</Text>
+                    <Ionicons name="chevron-forward" size={14} color={colors.primary} />
                   </View>
                 </Pressable>
               )}
@@ -321,7 +376,7 @@ export const Header = ({ currentRoute, onNavigate }) => {
 
               {/* Section 1: Core Operations */}
               <View style={styles.popSection}>
-                <Text style={styles.popSectionTitle}>OPERATIONAL MODULES</Text>
+                <Text style={[styles.popSectionTitle, { color: colors.primary }]}>OPERATIONAL MODULES</Text>
                 <View style={styles.popGrid}>
                   {coreModules.map((item) => {
                     const active = isActive(item.route);
@@ -330,28 +385,37 @@ export const Header = ({ currentRoute, onNavigate }) => {
                         key={item.route}
                         style={({ pressed }) => [
                           styles.popGridCard,
-                          active && styles.popGridCardActive,
+                          {
+                            backgroundColor: active
+                              ? (isDark ? 'rgba(0, 229, 255, 0.12)' : 'rgba(0, 163, 255, 0.1)')
+                              : colors.surfaceLight,
+                            borderColor: active ? colors.primary : colors.borderLight,
+                          },
                           pressed && styles.cardPressed,
                         ]}
                         onPress={() => navTo(item.route)}
                       >
-                        <View style={[styles.popIconCircle, active && styles.popIconCircleActive]}>
+                        <View style={[
+                          styles.popIconCircle,
+                          { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#e2e8f0' },
+                          active && { backgroundColor: isDark ? 'rgba(0, 229, 255, 0.18)' : 'rgba(0, 163, 255, 0.2)' }
+                        ]}>
                           <Ionicons
                             name={item.icon}
                             size={18}
-                            color={active ? COLORS.primary : COLORS.textSecondary}
+                            color={active ? colors.primary : colors.textSecondary}
                           />
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={[styles.popCardTitle, active && styles.popCardTitleActive]}>
+                          <Text style={[styles.popCardTitle, { color: active ? colors.primary : colors.text }]}>
                             {item.label}
                           </Text>
-                          <Text style={styles.popCardDesc} numberOfLines={1}>
+                          <Text style={[styles.popCardDesc, { color: colors.textSecondary }]} numberOfLines={1}>
                             {item.desc}
                           </Text>
                         </View>
                         {active && (
-                          <View style={styles.activeDot} />
+                          <View style={[styles.activeDot, { backgroundColor: colors.primary }]} />
                         )}
                       </Pressable>
                     );
@@ -362,7 +426,7 @@ export const Header = ({ currentRoute, onNavigate }) => {
               {/* Section 2: Facility Directory (SuperAdmin) */}
               {user?.role === 'SuperAdmin' && (
                 <View style={styles.popSection}>
-                  <Text style={styles.popSectionTitle}>FACILITY DIRECTORY & ACCESS</Text>
+                  <Text style={[styles.popSectionTitle, { color: colors.primary }]}>FACILITY DIRECTORY & ACCESS</Text>
                   <View style={styles.popDirectoryGrid}>
                     {directoryModules.map((item) => {
                       const active = isActive(item.route);
@@ -371,22 +435,29 @@ export const Header = ({ currentRoute, onNavigate }) => {
                           key={item.route}
                           style={({ pressed }) => [
                             styles.popDirectoryCard,
-                            active && styles.popDirectoryCardActive,
                             pressed && styles.cardPressed,
                           ]}
                           onPress={() => navTo(item.route)}
                         >
-                          <View style={[styles.popDirIconBox, active && styles.popDirIconBoxActive]}>
+                          <View style={[
+                            styles.popDirIconBox,
+                            { backgroundColor: colors.surfaceLight },
+                            active && {
+                              backgroundColor: isDark ? 'rgba(0, 229, 255, 0.18)' : 'rgba(0, 163, 255, 0.15)',
+                              borderColor: colors.primary,
+                              borderWidth: 1,
+                            }
+                          ]}>
                             <Ionicons
                               name={item.icon}
                               size={16}
-                              color={active ? COLORS.primary : COLORS.textMuted}
+                              color={active ? colors.primary : colors.textSecondary}
                             />
                           </View>
-                          <Text style={[styles.popDirTitle, active && styles.popDirTitleActive]} numberOfLines={1}>
+                          <Text style={[styles.popDirTitle, { color: active ? colors.primary : colors.text }]} numberOfLines={1}>
                             {item.label}
                           </Text>
-                          <Text style={styles.popDirDesc} numberOfLines={1}>
+                          <Text style={[styles.popDirDesc, { color: colors.textSecondary }]} numberOfLines={1}>
                             {item.desc}
                           </Text>
                         </Pressable>
@@ -397,7 +468,7 @@ export const Header = ({ currentRoute, onNavigate }) => {
               )}
 
               {/* Section 3: Footer Session Actions */}
-              <View style={styles.popFooter}>
+              <View style={[styles.popFooter, { borderTopColor: colors.borderLight }]}>
                 {isAuthenticated ? (
                   <Pressable
                     style={({ pressed }) => [styles.popLogoutBtn, pressed && styles.btnPressed]}
@@ -411,8 +482,8 @@ export const Header = ({ currentRoute, onNavigate }) => {
                     style={({ pressed }) => [styles.popLoginBtn, pressed && styles.btnPressed]}
                     onPress={() => navTo('Login')}
                   >
-                    <Ionicons name="log-in-outline" size={17} color={COLORS.primary} style={{ marginRight: 8 }} />
-                    <Text style={styles.popLoginText}>Operator Sign In</Text>
+                    <Ionicons name="log-in-outline" size={17} color={colors.primary} style={{ marginRight: 8 }} />
+                    <Text style={[styles.popLoginText, { color: colors.primary }]}>Operator Sign In</Text>
                   </Pressable>
                 )}
               </View>
@@ -473,18 +544,38 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   logoBadge: {
-    width: 32,
-    height: 32,
+    width: 34,
+    height: 34,
     borderRadius: RADIUS.sm,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    padding: 2,
     ...Platform.select({
       web: {
-        boxShadow: '0px 0px 10px rgba(0, 229, 255, 0.5)',
+        boxShadow: '0px 0px 8px rgba(0, 0, 0, 0.15)',
       },
     }),
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  themeToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    gap: 4,
+  },
+  themeToggleText: {
+    fontSize: 11,
+    fontWeight: '700',
   },
   logoBadgeText: {
     color: '#040810',

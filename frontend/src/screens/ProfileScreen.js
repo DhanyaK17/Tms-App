@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { complaintService } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Input from '../components/Input';
@@ -21,6 +22,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const ProfileScreen = ({ navigation }) => {
   const { user, updateProfile, changePassword, logout } = useContext(AuthContext);
+  const { colors, isDark, toggleTheme } = useTheme();
   const { isSmallMobile } = useResponsive();
 
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'security' | 'preferences'
@@ -151,7 +153,7 @@ export const ProfileScreen = ({ navigation }) => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={[styles.scrollContent, isSmallMobile && { padding: SPACING.sm }]}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -159,37 +161,37 @@ export const ProfileScreen = ({ navigation }) => {
       >
         <View style={styles.innerContainer}>
         {/* Operator Hero Card */}
-        <Card style={[styles.profileHero, isSmallMobile && { padding: SPACING.md }]} glow>
+        <Card style={[styles.profileHero, { backgroundColor: colors.surfaceCard, borderColor: colors.border }, isSmallMobile && { padding: SPACING.md }]} glow>
           <View style={styles.heroRow}>
-            <View style={[styles.avatarHuge, isSmallMobile && { width: 50, height: 50, borderRadius: 25, marginRight: SPACING.sm }]}>
-              <Text style={[styles.avatarHugeText, isSmallMobile && { fontSize: 20 }]}>
+            <View style={[styles.avatarHuge, { backgroundColor: `${colors.primary}20`, borderColor: colors.primary }, isSmallMobile && { width: 50, height: 50, borderRadius: 25, marginRight: SPACING.sm }]}>
+              <Text style={[styles.avatarHugeText, { color: colors.primary }, isSmallMobile && { fontSize: 20 }]}>
                 {user?.username?.charAt(0).toUpperCase() || 'U'}
               </Text>
             </View>
             <View style={{ flex: 1 }}>
               <View style={styles.nameRow}>
-                <Text style={styles.username}>{user?.username}</Text>
+                <Text style={[styles.username, { color: colors.text }]}>{user?.username}</Text>
                 <Badge status={user?.role} style={{ marginLeft: 8 }} />
               </View>
-              <Text style={styles.userEmail}>{user?.email}</Text>
-              <Text style={styles.userPhone}>{user?.phone || 'No phone registered'}</Text>
+              <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
+              <Text style={[styles.userPhone, { color: colors.textMuted }]}>{user?.phone || 'No phone registered'}</Text>
             </View>
           </View>
 
           {/* Quick Metrics */}
           {stats && (
-            <View style={styles.statsStrip}>
+            <View style={[styles.statsStrip, { borderTopColor: colors.borderLight }]}>
               <View style={styles.statBox}>
-                <Text style={styles.statNum}>{stats.total}</Text>
-                <Text style={styles.statLabel}>INCIDENTS</Text>
+                <Text style={[styles.statNum, { color: colors.text }]}>{stats.total}</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>INCIDENTS</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={[styles.statNum, { color: COLORS.amber }]}>{stats.pending}</Text>
-                <Text style={styles.statLabel}>PENDING</Text>
+                <Text style={[styles.statNum, { color: colors.amber }]}>{stats.pending}</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>PENDING</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={[styles.statNum, { color: COLORS.green }]}>{stats.closed}</Text>
-                <Text style={styles.statLabel}>RESOLVED</Text>
+                <Text style={[styles.statNum, { color: colors.green }]}>{stats.closed}</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>RESOLVED</Text>
               </View>
             </View>
           )}
@@ -210,45 +212,57 @@ export const ProfileScreen = ({ navigation }) => {
         ) : null}
 
         {/* Tab Navigation */}
-        <View style={[styles.tabRow, isSmallMobile && { padding: 2 }]}>
+        <View style={[styles.tabRow, { backgroundColor: colors.surfaceCard, borderColor: colors.borderLight }, isSmallMobile && { padding: 2 }]}>
           <Pressable
-            style={[styles.tab, activeTab === 'general' && styles.tabActive, isSmallMobile && { paddingVertical: 8, gap: 4 }]}
+            style={[
+              styles.tab,
+              activeTab === 'general' && [styles.tabActive, { backgroundColor: isDark ? 'rgba(0, 229, 255, 0.12)' : 'rgba(0, 163, 255, 0.1)', borderColor: isDark ? 'rgba(0, 229, 255, 0.3)' : 'rgba(0, 163, 255, 0.3)' }],
+              isSmallMobile && { paddingVertical: 8, gap: 4 },
+            ]}
             onPress={() => setActiveTab('general')}
           >
             <Ionicons
               name="person-outline"
               size={isSmallMobile ? 14 : 16}
-              color={activeTab === 'general' ? COLORS.primary : COLORS.textMuted}
+              color={activeTab === 'general' ? colors.primary : colors.textSecondary}
             />
-            <Text style={[styles.tabText, activeTab === 'general' && styles.tabTextActive, isSmallMobile && { fontSize: 11 }]}>
+            <Text style={[styles.tabText, { color: activeTab === 'general' ? colors.primary : colors.textSecondary }, isSmallMobile && { fontSize: 11 }]}>
               {isSmallMobile ? 'General' : 'General Details'}
             </Text>
           </Pressable>
 
           <Pressable
-            style={[styles.tab, activeTab === 'security' && styles.tabActive, isSmallMobile && { paddingVertical: 8, gap: 4 }]}
+            style={[
+              styles.tab,
+              activeTab === 'security' && [styles.tabActive, { backgroundColor: isDark ? 'rgba(0, 229, 255, 0.12)' : 'rgba(0, 163, 255, 0.1)', borderColor: isDark ? 'rgba(0, 229, 255, 0.3)' : 'rgba(0, 163, 255, 0.3)' }],
+              isSmallMobile && { paddingVertical: 8, gap: 4 },
+            ]}
             onPress={() => setActiveTab('security')}
           >
             <Ionicons
               name="shield-outline"
               size={isSmallMobile ? 14 : 16}
-              color={activeTab === 'security' ? COLORS.primary : COLORS.textMuted}
+              color={activeTab === 'security' ? colors.primary : colors.textSecondary}
             />
-            <Text style={[styles.tabText, activeTab === 'security' && styles.tabTextActive, isSmallMobile && { fontSize: 11 }]}>
+            <Text style={[styles.tabText, { color: activeTab === 'security' ? colors.primary : colors.textSecondary }, isSmallMobile && { fontSize: 11 }]}>
               {isSmallMobile ? 'Security' : 'Security Key'}
             </Text>
           </Pressable>
 
           <Pressable
-            style={[styles.tab, activeTab === 'preferences' && styles.tabActive, isSmallMobile && { paddingVertical: 8, gap: 4 }]}
+            style={[
+              styles.tab,
+              activeTab === 'preferences' && [styles.tabActive, { backgroundColor: isDark ? 'rgba(0, 229, 255, 0.12)' : 'rgba(0, 163, 255, 0.1)', borderColor: isDark ? 'rgba(0, 229, 255, 0.3)' : 'rgba(0, 163, 255, 0.3)' }],
+              isSmallMobile && { paddingVertical: 8, gap: 4 },
+            ]}
             onPress={() => setActiveTab('preferences')}
           >
             <Ionicons
               name="settings-outline"
               size={isSmallMobile ? 14 : 16}
-              color={activeTab === 'preferences' ? COLORS.primary : COLORS.textMuted}
+              color={activeTab === 'preferences' ? colors.primary : colors.textSecondary}
             />
-            <Text style={[styles.tabText, activeTab === 'preferences' && styles.tabTextActive, isSmallMobile && { fontSize: 11 }]}>
+            <Text style={[styles.tabText, { color: activeTab === 'preferences' ? colors.primary : colors.textSecondary }, isSmallMobile && { fontSize: 11 }]}>
               {isSmallMobile ? 'Preferences' : 'Preferences'}
             </Text>
           </Pressable>
@@ -330,68 +344,70 @@ export const ProfileScreen = ({ navigation }) => {
         {/* Tab 3: Preferences & Notifications */}
         {activeTab === 'preferences' && (
           <Card style={[styles.tabCard, isSmallMobile && { padding: SPACING.md }]}>
-            <Text style={styles.prefSectionHeader}>SYSTEM PREFERENCES</Text>
-            <View style={styles.prefItem}>
+            <Text style={[styles.prefSectionHeader, { color: colors.primary }]}>SYSTEM PREFERENCES</Text>
+            <View style={[styles.prefItem, { borderBottomColor: colors.borderLight }]}>
               <View>
-                <Text style={styles.prefLabel}>Email Dispatches</Text>
-                <Text style={styles.prefDesc}>Receive ticket alert transmissions via email</Text>
+                <Text style={[styles.prefLabel, { color: colors.text }]}>Email Dispatches</Text>
+                <Text style={[styles.prefDesc, { color: colors.textSecondary }]}>Receive ticket alert transmissions via email</Text>
               </View>
               <Switch
                 value={preferences.emailNotifs}
                 onValueChange={() => togglePreference('emailNotifs')}
-                trackColor={{ false: COLORS.surfaceLight, true: COLORS.primary }}
+                trackColor={{ false: colors.surfaceLight, true: colors.primary }}
               />
             </View>
 
-            <View style={styles.prefItem}>
+            <View style={[styles.prefItem, { borderBottomColor: colors.borderLight }]}>
               <View>
-                <Text style={styles.prefLabel}>SMS Telemetry</Text>
-                <Text style={styles.prefDesc}>Critical incident emergency notifications</Text>
+                <Text style={[styles.prefLabel, { color: colors.text }]}>SMS Telemetry</Text>
+                <Text style={[styles.prefDesc, { color: colors.textSecondary }]}>Critical incident emergency notifications</Text>
               </View>
               <Switch
                 value={preferences.smsNotifs}
                 onValueChange={() => togglePreference('smsNotifs')}
-                trackColor={{ false: COLORS.surfaceLight, true: COLORS.primary }}
+                trackColor={{ false: colors.surfaceLight, true: colors.primary }}
               />
             </View>
 
-            <View style={styles.prefItem}>
+            <View style={[styles.prefItem, { borderBottomColor: colors.borderLight }]}>
               <View>
-                <Text style={styles.prefLabel}>Dark Tactical UI</Text>
-                <Text style={styles.prefDesc}>Ultra-low latency night vision theme</Text>
+                <Text style={[styles.prefLabel, { color: colors.text }]}>Dark / Light Mode</Text>
+                <Text style={[styles.prefDesc, { color: colors.textSecondary }]}>
+                  {isDark ? 'Dark theme enabled' : 'Light theme enabled'}
+                </Text>
               </View>
               <Switch
-                value={preferences.darkMode}
-                onValueChange={() => togglePreference('darkMode')}
-                trackColor={{ false: COLORS.surfaceLight, true: COLORS.primary }}
+                value={isDark}
+                onValueChange={() => toggleTheme()}
+                trackColor={{ false: colors.surfaceLight, true: colors.primary }}
               />
             </View>
 
-            <Text style={[styles.prefSectionHeader, { marginTop: SPACING.lg }]}>
+            <Text style={[styles.prefSectionHeader, { color: colors.primary, marginTop: SPACING.lg }]}>
               NOTIFICATION CHANNELS
             </Text>
 
-            <View style={styles.prefItem}>
+            <View style={[styles.prefItem, { borderBottomColor: colors.borderLight }]}>
               <View>
-                <Text style={styles.prefLabel}>Ticket Status Updates</Text>
-                <Text style={styles.prefDesc}>Real-time alerts when ticket transitions state</Text>
+                <Text style={[styles.prefLabel, { color: colors.text }]}>Ticket Status Updates</Text>
+                <Text style={[styles.prefDesc, { color: colors.textSecondary }]}>Real-time alerts when ticket transitions state</Text>
               </View>
               <Switch
                 value={notifications.ticketUpdates}
                 onValueChange={() => toggleNotification('ticketUpdates')}
-                trackColor={{ false: COLORS.surfaceLight, true: COLORS.primary }}
+                trackColor={{ false: colors.surfaceLight, true: colors.primary }}
               />
             </View>
 
-            <View style={styles.prefItem}>
+            <View style={[styles.prefItem, { borderBottomColor: colors.borderLight }]}>
               <View>
-                <Text style={styles.prefLabel}>Operator Mentions</Text>
-                <Text style={styles.prefDesc}>When you are assigned to a facility ticket</Text>
+                <Text style={[styles.prefLabel, { color: colors.text }]}>Operator Mentions</Text>
+                <Text style={[styles.prefDesc, { color: colors.textSecondary }]}>When you are assigned to a facility ticket</Text>
               </View>
               <Switch
                 value={notifications.mentions}
                 onValueChange={() => toggleNotification('mentions')}
-                trackColor={{ false: COLORS.surfaceLight, true: COLORS.primary }}
+                trackColor={{ false: colors.surfaceLight, true: colors.primary }}
               />
             </View>
           </Card>

@@ -10,7 +10,8 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, RADIUS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
+import { RADIUS, SPACING } from '../constants/theme';
 import { useResponsive } from '../utils/responsive';
 
 export const ModalView = ({
@@ -20,6 +21,7 @@ export const ModalView = ({
   children,
   maxWidth = 600,
 }) => {
+  const { colors, isDark } = useTheme();
   const { isMobile } = useResponsive();
 
   useEffect(() => {
@@ -43,23 +45,37 @@ export const ModalView = ({
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.overlay}
+        style={[styles.overlay, { backgroundColor: colors.overlay }]}
         keyboardVerticalOffset={0}
       >
         <Pressable style={styles.backdrop} onPress={onClose} />
         <View
           style={[
             styles.modalContent,
-            { maxWidth },
+            {
+              maxWidth,
+              backgroundColor: colors.surfaceCard,
+              borderColor: colors.border,
+            },
             isMobile && styles.modalContentMobile,
           ]}
         >
-          <View style={[styles.header, isMobile && { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm }]}>
-            <Text style={styles.title} numberOfLines={1}>
+          <View
+            style={[
+              styles.header,
+              { borderBottomColor: colors.borderLight },
+              isMobile && { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm },
+            ]}
+          >
+            <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
               {title}
             </Text>
-            <Pressable onPress={onClose} hitSlop={10} style={styles.closeBtn}>
-              <Ionicons name="close" size={22} color={COLORS.textSecondary} />
+            <Pressable
+              onPress={onClose}
+              hitSlop={10}
+              style={[styles.closeBtn, { backgroundColor: colors.surfaceLight }]}
+            >
+              <Ionicons name="close" size={22} color={colors.textSecondary} />
             </Pressable>
           </View>
           <ScrollView
@@ -79,7 +95,6 @@ export const ModalView = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: COLORS.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: SPACING.md,
@@ -90,18 +105,16 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     maxHeight: '90%',
-    backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     ...Platform.select({
       web: {
-        boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.5)',
+        boxShadow: '0px 10px 25px rgba(0, 0, 0, 0.35)',
       },
       default: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.5,
+        shadowOpacity: 0.35,
         shadowRadius: 20,
         elevation: 10,
       },
@@ -119,11 +132,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
   },
   title: {
-    color: COLORS.text,
     fontSize: 18,
     fontWeight: '700',
     flex: 1,
@@ -132,7 +142,6 @@ const styles = StyleSheet.create({
   closeBtn: {
     padding: 4,
     borderRadius: RADIUS.sm,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   body: {
     flexGrow: 0,

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { complaintService, FILE_BASE_URL } from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
@@ -23,6 +24,7 @@ import LoadingScreen from '../components/LoadingScreen';
 import { useResponsive } from '../utils/responsive';
 
 export const UserComplaintDashboardScreen = ({ navigation }) => {
+  const { colors, isDark } = useTheme();
   const { width } = useResponsive();
 
   const [complaints, setComplaints] = useState([]);
@@ -90,18 +92,18 @@ export const UserComplaintDashboardScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         {/* Header */}
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>My Ticket Dossier</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>My Ticket Dossier</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               Tracking your submitted service requests & technician resolution activity
             </Text>
           </View>
@@ -162,18 +164,18 @@ export const UserComplaintDashboardScreen = ({ navigation }) => {
 
         {/* Filter & Search */}
         <Card style={styles.filterCard}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={18} color={COLORS.textSecondary} style={{ marginRight: 8 }} />
+          <View style={[styles.searchBar, { backgroundColor: colors.inputBg, borderColor: colors.borderLight }]}>
+            <Ionicons name="search" size={18} color={colors.textSecondary} style={{ marginRight: 8 }} />
             <TextInput
               value={searchTerm}
               onChangeText={setSearchTerm}
               placeholder="Search your reported tickets..."
-              placeholderTextColor={COLORS.textMuted}
-              style={styles.searchInput}
+              placeholderTextColor={colors.textMuted}
+              style={[styles.searchInput, { color: colors.text }]}
             />
             {searchTerm ? (
               <Pressable onPress={() => setSearchTerm('')} hitSlop={8} style={{ padding: 4 }}>
-                <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+                <Ionicons name="close-circle" size={18} color={colors.textMuted} />
               </Pressable>
             ) : null}
           </View>
@@ -182,11 +184,21 @@ export const UserComplaintDashboardScreen = ({ navigation }) => {
             {['All', 'Pending', 'Assigned', 'In-Progress', 'Completed'].map((st) => (
               <Pressable
                 key={st}
-                style={[styles.pill, filterStatus === st && styles.pillActive]}
+                style={[
+                  styles.pill,
+                  { backgroundColor: colors.surfaceLight, borderColor: colors.borderLight },
+                  filterStatus === st && { backgroundColor: `${colors.primary}20`, borderColor: colors.primary },
+                ]}
                 onPress={() => setFilterStatus(st)}
               >
-                <Text style={[styles.pillText, filterStatus === st && styles.pillTextActive]}>
-                  {st}
+                <Text
+                  style={[
+                    styles.pillText,
+                    { color: colors.textSecondary },
+                    filterStatus === st && { color: colors.primary, fontWeight: '800' },
+                  ]}
+                >
+                  {st === 'Completed' ? 'Resolved' : st}
                 </Text>
               </Pressable>
             ))}
@@ -207,39 +219,51 @@ export const UserComplaintDashboardScreen = ({ navigation }) => {
             filteredComplaints.map((ticket) => (
               <Pressable
                 key={ticket._id}
-                style={({ pressed }) => [styles.ticketCard, pressed && styles.cardPressed]}
-                onPress={() => setSelectedComplaint(ticket)}
+                style={({ pressed }) => [
+                  styles.ticketCard,
+                  { backgroundColor: colors.surfaceCard, borderColor: colors.borderLight },
+                  pressed && styles.cardPressed,
+                ]}
+                onPress={() => navigation.navigate('ComplaintTracking', { complaintId: ticket._id, complaint: ticket })}
               >
                 <View style={styles.ticketTop}>
                   <View>
-                    <Text style={styles.ticketLocation}>
+                    <Text style={[styles.ticketLocation, { color: colors.text }]}>
                       {ticket.blockName} • {ticket.roomNumber}
                     </Text>
-                    <Text style={styles.ticketType}>{ticket.complaintType}</Text>
+                    <Text style={[styles.ticketType, { color: colors.primary }]}>{ticket.complaintType}</Text>
                   </View>
                   <Badge status={ticket.status} />
                 </View>
 
-                <Text style={styles.ticketRemarks} numberOfLines={2}>
+                <Text style={[styles.ticketRemarks, { color: colors.textSecondary }]} numberOfLines={2}>
                   {ticket.remarks || 'No detailed remarks submitted.'}
                 </Text>
 
-                <View style={styles.ticketBottom}>
-                  <Text style={styles.ticketDate}>
+                <View style={[styles.ticketBottom, { borderTopColor: colors.borderLight }]}>
+                  <Text style={[styles.ticketDate, { color: colors.textMuted }]}>
                     {new Date(ticket.createdAt).toLocaleDateString()}
                   </Text>
                   {ticket.assignedTo && (
-                    <Text style={styles.ticketAssignee}>
-                      Technician: {ticket.assignedTo?.username || 'Field Specialist'}
+                    <Text style={[styles.ticketAssignee, { color: colors.primary }]}>
+                      Tech: {ticket.assignedTo?.username || 'Staff'}
                     </Text>
                   )}
-                  <Button
-                    title="View Details"
-                    onPress={() => setSelectedComplaint(ticket)}
-                    variant="outline"
-                    size="sm"
-                    style={{ marginLeft: 'auto' }}
-                  />
+                  <View style={{ marginLeft: 'auto', flexDirection: 'row', gap: 6 }}>
+                    <Button
+                      title="Track Live"
+                      onPress={() => navigation.navigate('ComplaintTracking', { complaintId: ticket._id, complaint: ticket })}
+                      variant="primary"
+                      size="sm"
+                      icon={<Ionicons name="navigate-outline" size={13} color={colors.textDark} />}
+                    />
+                    <Button
+                      title="Details"
+                      onPress={() => setSelectedComplaint(ticket)}
+                      variant="outline"
+                      size="sm"
+                    />
+                  </View>
                 </View>
               </Pressable>
             ))
@@ -256,43 +280,43 @@ export const UserComplaintDashboardScreen = ({ navigation }) => {
             <View style={styles.inspectContent}>
               <View style={styles.inspectGrid}>
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Facility Room</Text>
-                  <Text style={styles.inspectValue}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Facility Room</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>
                     {selectedComplaint.blockName} • {selectedComplaint.roomNumber}
                   </Text>
                 </View>
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Category</Text>
-                  <Text style={styles.inspectValue}>{selectedComplaint.complaintType}</Text>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Category</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>{selectedComplaint.complaintType}</Text>
                 </View>
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Status</Text>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Status</Text>
                   <Badge status={selectedComplaint.status} />
                 </View>
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Reported Date</Text>
-                  <Text style={styles.inspectValue}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Reported Date</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>
                     {new Date(selectedComplaint.createdAt).toLocaleString()}
                   </Text>
                 </View>
                 <View style={styles.inspectItem}>
-                  <Text style={styles.inspectLabel}>Assigned Technician</Text>
-                  <Text style={styles.inspectValue}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Assigned Technician</Text>
+                  <Text style={[styles.inspectValue, { color: colors.text }]}>
                     {selectedComplaint.assignedTo?.username || 'Awaiting assignment'}
                   </Text>
                 </View>
               </View>
 
-              <View style={styles.inspectFullSection}>
-                <Text style={styles.inspectLabel}>Remarks / Fault Details</Text>
-                <Text style={styles.inspectRemarks}>
+              <View style={[styles.inspectFullSection, { borderTopColor: colors.borderLight }]}>
+                <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Remarks / Fault Details</Text>
+                <Text style={[styles.inspectRemarks, { color: colors.text }]}>
                   {selectedComplaint.remarks || 'No remarks provided.'}
                 </Text>
               </View>
 
               {selectedComplaint.attachment && (
-                <View style={styles.inspectFullSection}>
-                  <Text style={styles.inspectLabel}>Evidentiary Attachment</Text>
+                <View style={[styles.inspectFullSection, { borderTopColor: colors.borderLight }]}>
+                  <Text style={[styles.inspectLabel, { color: colors.textSecondary }]}>Evidentiary Attachment</Text>
                   <Button
                     title="View Attached Evidence ↗"
                     onPress={() => {
@@ -307,6 +331,19 @@ export const UserComplaintDashboardScreen = ({ navigation }) => {
                   />
                 </View>
               )}
+
+              {/* Quick Launch into Live Tracking */}
+              <Button
+                title="Open Live Tracking Radar 📍"
+                onPress={() => {
+                  const c = selectedComplaint;
+                  setSelectedComplaint(null);
+                  navigation.navigate('ComplaintTracking', { complaintId: c._id, complaint: c });
+                }}
+                variant="primary"
+                size="md"
+                style={{ marginTop: SPACING.md }}
+              />
             </View>
           )}
         </ModalView>

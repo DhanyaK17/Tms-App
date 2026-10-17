@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { roomService, departmentService, programmeService, blockService } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Input from '../components/Input';
@@ -23,6 +24,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const RoomScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { width } = useResponsive();
   const numCols = width >= 768 ? 2 : 1;
   const cardWidthPercent = numCols === 2 ? '50%' : '100%';
@@ -171,17 +173,17 @@ export const RoomScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>Facility Room Directory</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Facility Room Directory</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               Room allocation, sector locations & departmental assignments
             </Text>
           </View>
@@ -195,7 +197,7 @@ export const RoomScreen = ({ navigation }) => {
 
         {error ? (
           <View style={styles.errorBox}>
-            <Ionicons name="alert-circle" size={18} color={COLORS.red} style={{ marginRight: 8 }} />
+            <Ionicons name="alert-circle" size={18} color={colors.danger || '#ef4444'} style={{ marginRight: 8 }} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
@@ -221,19 +223,19 @@ export const RoomScreen = ({ navigation }) => {
                   <Card style={styles.roomCard}>
                     <View style={styles.roomTop}>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.roomNumber}>Room {room.roomNumber}</Text>
+                        <Text style={[styles.roomNumber, { color: colors.text }]}>Room {room.roomNumber}</Text>
                         <View style={styles.badgeRow}>
                           <View style={styles.tag}>
                             <Text style={styles.tagText}>{blockName}</Text>
                           </View>
                           {room.floor && (
-                            <View style={styles.floorTag}>
-                              <Text style={styles.floorTagText}>Floor {room.floor}</Text>
+                            <View style={[styles.floorTag, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]}>
+                              <Text style={[styles.floorTagText, { color: colors.textSecondary }]}>Floor {room.floor}</Text>
                             </View>
                           )}
                           {room.capacity && (
-                            <View style={styles.floorTag}>
-                              <Text style={styles.floorTagText}>{room.capacity} Cap</Text>
+                            <View style={[styles.floorTag, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' }]}>
+                              <Text style={[styles.floorTagText, { color: colors.textSecondary }]}>{room.capacity} Cap</Text>
                             </View>
                           )}
                         </View>
@@ -276,32 +278,41 @@ export const RoomScreen = ({ navigation }) => {
               placeholder="e.g. 101 or LAB-A"
             />
 
-            <Text style={styles.fieldLabel}>Sector / Block *</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Sector / Block *</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
               {blocks.map((b) => (
                 <Pressable
                   key={b._id}
-                  style={[styles.pill, formData.block === b._id && styles.pillActive]}
+                  style={[
+                    styles.pill,
+                    { borderColor: colors.borderLight },
+                    formData.block === b._id && styles.pillActive,
+                  ]}
                   onPress={() => setFormData({ ...formData, block: b._id })}
                 >
-                  <Text style={[styles.pillText, formData.block === b._id && styles.pillTextActive]}>
+                  <Text style={[styles.pillText, { color: colors.textSecondary }, formData.block === b._id && styles.pillTextActive]}>
                     {b.name}
                   </Text>
                 </Pressable>
               ))}
             </ScrollView>
 
-            <Text style={styles.fieldLabel}>Mapped Department *</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Mapped Department *</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
               {departments.map((d) => (
                 <Pressable
                   key={d._id}
-                  style={[styles.pill, formData.department === d._id && styles.pillActive]}
+                  style={[
+                    styles.pill,
+                    { borderColor: colors.borderLight },
+                    formData.department === d._id && styles.pillActive,
+                  ]}
                   onPress={() => setFormData({ ...formData, department: d._id })}
                 >
                   <Text
                     style={[
                       styles.pillText,
+                      { color: colors.textSecondary },
                       formData.department === d._id && styles.pillTextActive,
                     ]}
                   >

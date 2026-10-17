@@ -2,8 +2,30 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TOKEN_KEY = '@tms_token';
 const USER_KEY = '@tms_user';
+const THEME_KEY = '@tms_theme_mode';
 
 export const storage = {
+  async getTheme() {
+    try {
+      return await AsyncStorage.getItem(THEME_KEY);
+    } catch (e) {
+      console.error('Storage getTheme error', e);
+      return null;
+    }
+  },
+
+  async setTheme(theme) {
+    try {
+      if (theme) {
+        await AsyncStorage.setItem(THEME_KEY, theme);
+      } else {
+        await AsyncStorage.removeItem(THEME_KEY);
+      }
+    } catch (e) {
+      console.error('Storage setTheme error', e);
+    }
+  },
+
   async getToken() {
     try {
       return await AsyncStorage.getItem(TOKEN_KEY);

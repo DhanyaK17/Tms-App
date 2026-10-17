@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { roleService } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Input from '../components/Input';
@@ -22,6 +23,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const RoleScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { width } = useResponsive();
   const numCols = width >= 768 ? 2 : 1;
   const cardWidthPercent = numCols === 2 ? '50%' : '100%';
@@ -145,17 +147,17 @@ export const RoleScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>Permission Matrix</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Permission Matrix</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               User role clearance levels & access vector definitions
             </Text>
           </View>
@@ -169,7 +171,7 @@ export const RoleScreen = ({ navigation }) => {
 
         {error ? (
           <View style={styles.errorBox}>
-            <Ionicons name="alert-circle" size={18} color={COLORS.red} style={{ marginRight: 8 }} />
+            <Ionicons name="alert-circle" size={18} color={colors.danger || '#ef4444'} style={{ marginRight: 8 }} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
@@ -189,7 +191,7 @@ export const RoleScreen = ({ navigation }) => {
                 <Card style={styles.roleCard}>
                   <View style={styles.roleTop}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.roleName}>{role.name}</Text>
+                      <Text style={[styles.roleName, { color: colors.text }]}>{role.name}</Text>
                       {role.permissions && role.permissions.length > 0 && (
                         <View style={styles.permissionsRow}>
                           {role.permissions.map((p, i) => (

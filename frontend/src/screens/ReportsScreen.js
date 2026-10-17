@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   complaintService,
   departmentService,
@@ -21,9 +22,12 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import EmptyState from '../components/EmptyState';
 import { useResponsive } from '../utils/responsive';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 
 export const ReportsScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { isSmallMobile, width } = useResponsive();
   const numCols = width >= 768 ? 2 : 1;
   const cardWidthPercent = numCols === 2 ? '50%' : '100%';
@@ -41,6 +45,7 @@ export const ReportsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const fetchReport = useCallback(async (filterParams) => {
     setError('');
@@ -88,48 +93,150 @@ export const ReportsScreen = ({ navigation }) => {
     fetchReport(emptyFilters);
   };
 
-  const exportCSV = () => {
-    if (!results.length) return;
-    const headers = [
-      'Date',
-      'Dept',
-      'Programme',
-      'Block',
-      'Room',
-      'Type',
-      'Status',
-      'CreatedBy',
-      'Assignee',
-    ];
-    const rows = results.map((r) => [
-      new Date(r.createdAt).toLocaleString(),
-      r.departmentName || '-',
-      r.programmeName || '-',
-      r.blockName,
-      r.roomNumber,
-      r.complaintType,
-      r.status,
-      r.createdBy?.username || r.createdBy?.email || '',
-      r.assignedTo?.username || r.assignedTo?.email || '',
-    ]);
+  const exportCSV = async () => {
+    if (isExporting) return;
+    if (!results.length) {
+      Alert.alert('No Report Data', 'There are no records to export. Please adjust matrix filters to generate data.');
+      return;
+    }
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map((row) =>
-        row.map((cell) => `"${('' + cell).replace(/"/g, '""')}"`).join(',')
-      ),
-    ].join('\n');
+    setIsExporting(true);
 
-    if (Platform.OS === 'web') {
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `TMS_Data_Export_${Date.now()}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      Alert.alert('Export Ready', `Generated ${results.length} rows of intelligence data.`);
+    try {
+      const headers = [
+        'Date',
+        'Dept',
+        'Programme',
+        'Block',
+        'Room',
+        'Type',
+        'Status',
+        'CreatedBy',
+        'Assignee',
+        'Remarks',
+      ];
+      const rows = results.map((r) => [
+        r.createdAt ? new Date(r.createdAt).toLocaleString() : '-',
+        r.departmentName || '-',
+        r.programmeName || '-',
+        r.blockName || '-',
+        r.roomNumber || '-',
+        r.complaintType || '-',
+        r.status || '-',
+        r.createdBy?.username || r.createdBy?.email || '-',
+        r.assignedTo?.username || r.assignedTo?.email || 'Unassigned',
+        r.remarks || '',
+      ]);
+
+      const csvContent = [
+        headers.join(','),
+        ...rows.map((row) =>
+          row.map((cell) => `"${('' + (cell ?? '')).replace(/"/g, '""')}"`).join(',')
+        ),
+      ].join('\n');
+
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const filename = `TMS_Report_${dateStr}.csv`;
+
+      if (Platform.OS === 'web') {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        Alert.alert('Export Successful', `CSV report downloaded successfully as ${filename}.`);
+        setIsExporting(false);
+      } else {
+        const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+        await FileSystem.writeAsStringAsync(fileUri, csvContent, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+
+        const isAvailable = await Sharing.isAvailableAsync();
+
+        if (Platform.OS === 'android') {
+          // Provide Android users direct choice to Share/Open via native sheet or Save directly to storage folder
+          Alert.alert(
+            'Export CSV Report',
+            `Report generated with ${results.length} record(s). Choose how to access this file:`,
+            [
+              {
+                text: 'Share / Open App',
+                onPress: async () => {
+                  try {
+                    if (isAvailable) {
+                      await Sharing.shareAsync(fileUri, {
+                        mimeType: 'text/csv',
+                        dialogTitle: 'Export TMS CSV Report',
+                        UTI: 'public.comma-separated-values-text',
+                      });
+                    } else {
+                      Alert.alert('Notice', 'Native sharing is unavailable on this device.');
+                    }
+                  } catch (shareErr) {
+                    Alert.alert('Share Failed', shareErr?.message || 'Failed to open share sheet.');
+                  } finally {
+                    setIsExporting(false);
+                  }
+                },
+              },
+              {
+                text: 'Save to Folder',
+                onPress: async () => {
+                  try {
+                    const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+                    if (permissions.granted) {
+                      const safUri = await FileSystem.StorageAccessFramework.createFileAsync(
+                        permissions.directoryUri,
+                        filename.replace(/\.csv$/, ''),
+                        'text/csv'
+                      );
+                      await FileSystem.writeAsStringAsync(safUri, csvContent, {
+                        encoding: FileSystem.EncodingType.UTF8,
+                      });
+                      Alert.alert('Export Successful', `CSV report saved successfully as ${filename}.`);
+                    } else {
+                      Alert.alert('Export Notice', 'Folder permission was not granted. The file was not saved.');
+                    }
+                  } catch (safErr) {
+                    Alert.alert('Save Failed', safErr?.message || 'Failed to save CSV file to folder.');
+                  } finally {
+                    setIsExporting(false);
+                  }
+                },
+              },
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => setIsExporting(false),
+              },
+            ],
+            { cancelable: true, onDismiss: () => setIsExporting(false) }
+          );
+        } else {
+          // iOS
+          if (isAvailable) {
+            await Sharing.shareAsync(fileUri, {
+              mimeType: 'text/csv',
+              dialogTitle: 'Export TMS CSV Report',
+              UTI: 'public.comma-separated-values-text',
+            });
+            Alert.alert('Export Successful', `CSV report exported successfully.`);
+          } else {
+            Alert.alert('Export Ready', `File saved to ${fileUri}`);
+          }
+          setIsExporting(false);
+        }
+      }
+    } catch (err) {
+      console.error('CSV Export Error:', err);
+      Alert.alert(
+        'Export Failed',
+        err?.message || 'An error occurred while generating or exporting the CSV report.'
+      );
+      setIsExporting(false);
     }
   };
 
@@ -143,26 +250,26 @@ export const ReportsScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={[styles.scrollContent, isSmallMobile && { padding: SPACING.sm }]}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>Intelligence & Reports</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Intelligence & Reports</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               Multi-dimensional query matrix and data cluster export
             </Text>
           </View>
           <Button
-            title="Export CSV ⤓"
+            title={isExporting ? "Exporting..." : "Export CSV ⤓"}
             onPress={exportCSV}
             variant="secondary"
             size="sm"
-            disabled={results.length === 0}
+            disabled={results.length === 0 || isExporting}
             icon={<Ionicons name="download-outline" size={16} color={COLORS.primary} />}
           />
         </View>

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { blockService, departmentService, programmeService } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Input from '../components/Input';
@@ -23,6 +24,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const BlockScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { width } = useResponsive();
   const numCols = width >= 768 ? 2 : 1;
   const cardWidthPercent = numCols === 2 ? '50%' : '100%';
@@ -153,17 +155,17 @@ export const BlockScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>Block Infrastructure</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Block Infrastructure</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               Facility block directory & sector allocations
             </Text>
           </View>

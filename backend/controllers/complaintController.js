@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 const Complaint = require("../models/Complaint");
 const User = require("../models/User");
+const {
+  notifyComplaintRegistered,
+  notifyComplaintAssigned,
+  notifyComplaintStatusChanged,
+} = require("../services/notificationService");
 
 exports.deleteComplaint = async (req, res) => {
   try {
@@ -61,6 +66,13 @@ exports.createComplaint = async (req, res) => {
     }
 
     await complaint.save();
+
+    // Trigger push notification and real-time socket event
+    notifyComplaintRegistered(complaint);
+    if (req.io) {
+      req.io.emit("complaint_created", complaint);
+      req.io.to(`user_${complaint.createdBy}`).emit("complaint_created", complaint);
+    }
 
     res.status(201).json({ message: "Complaint created", complaint });
   } catch (error) {
@@ -224,14 +236,42 @@ exports.assignComplaint = async (req, res) => {
     if (!complaint)
       return res.status(404).json({ message: "Complaint not found" });
 
+    const previousAssignee = complaint.assignedTo ? String(complaint.assignedTo) : null;
+    const isAlreadyAssignedToSame = previousAssignee === String(assignee._id);
+
     complaint.assignedTo = assignee._id;
     complaint.status = "Assigned";
     await complaint.save();
 
-    const updated = await Complaint.findById(complaintId).populate(
-      "assignedTo",
-      "username email role",
-    );
+    const updated = await Complaint.findById(complaintId)
+      .populate({
+        path: "createdBy",
+        select: "username email department",
+        populate: { path: "department", select: "name" },
+      })
+      .populate({
+        path: "assignedTo",
+        select: "username email role department",
+        populate: { path: "department", select: "name" },
+      });
+
+    // Notify only if not already assigned to the same user
+    if (!isAlreadyAssignedToSame) {
+      notifyComplaintAssigned(updated, assignee);
+    }
+
+    // Real-time broadcast
+    if (req.io) {
+      req.io.to(`complaint_${complaintId}`).emit("complaint_updated", updated);
+      req.io.emit("complaint_updated", updated);
+      req.io.to(`user_${updated.createdBy?._id}`).emit("complaint_status_changed", {
+        complaintId,
+        status: "Assigned",
+        complaint: updated,
+      });
+      req.io.to(`user_${assignee._id}`).emit("complaint_assigned", updated);
+    }
+
     res.json({ message: "Assigned successfully", complaint: updated });
   } catch (error) {
     res
@@ -240,12 +280,12 @@ exports.assignComplaint = async (req, res) => {
   }
 };
 
-// Assigned staff (or SuperAdmin) can update status to Closed
+// Assigned staff (or SuperAdmin) can update status
 exports.updateStatus = async (req, res) => {
   try {
     const requester = req.user;
     const complaintId = req.params.id;
-    let { status } = req.body; // expected 'Completed'
+    let { status } = req.body;
     if (!status) return res.status(400).json({ message: "status is required" });
 
     const allowedStatuses = [
@@ -265,41 +305,73 @@ exports.updateStatus = async (req, res) => {
     if (!complaint)
       return res.status(404).json({ message: "Complaint not found" });
 
-    // If requester is SuperAdmin, allow any change
-    if (requester.role === "SuperAdmin") {
-      complaint.status = status;
-      await complaint.save();
-      const updated = await Complaint.findById(complaintId).populate(
-        "assignedTo",
-        "username email",
-      );
-      return res.json({ message: "Status updated", complaint: updated });
+    // Prevent duplicate processing if status is identical
+    if (complaint.status === status) {
+      const currentDoc = await Complaint.findById(complaintId)
+        .populate({
+          path: "createdBy",
+          select: "username email department",
+          populate: { path: "department", select: "name" },
+        })
+        .populate({
+          path: "assignedTo",
+          select: "username email role department",
+          populate: { path: "department", select: "name" },
+        });
+      return res.json({ message: "Status unchanged", complaint: currentDoc });
     }
 
-    // Staff/Technician: must be assignedTo and can set limited statuses
-    const isAssignee =
-      complaint.assignedTo &&
-      String(complaint.assignedTo._id) === String(requester.id);
+    // If requester is SuperAdmin, allow any change
+    if (requester.role !== "SuperAdmin") {
+      // Staff/Technician: must be assignedTo and can set limited statuses
+      const isAssignee =
+        complaint.assignedTo &&
+        String(complaint.assignedTo._id) === String(requester.id);
 
-    if (!isAssignee) {
-      return res.status(403).json({
-        message: "Only assigned staff can update status",
+      if (!isAssignee) {
+        return res.status(403).json({
+          message: "Only assigned staff can update status",
+        });
+      }
+
+      const staffAllowed = ["In-Progress", "Onhold", "Completed"];
+      if (!staffAllowed.includes(status)) {
+        return res
+          .status(403)
+          .json({ message: "Assigned staff cannot set this status" });
+      }
+    }
+
+    const previousStatus = complaint.status;
+    complaint.status = status;
+    await complaint.save();
+
+    const updated = await Complaint.findById(complaintId)
+      .populate({
+        path: "createdBy",
+        select: "username email department",
+        populate: { path: "department", select: "name" },
+      })
+      .populate({
+        path: "assignedTo",
+        select: "username email role department",
+        populate: { path: "department", select: "name" },
+      });
+
+    // Notify creator and interested parties
+    notifyComplaintStatusChanged(updated, status, previousStatus);
+
+    // Broadcast live event
+    if (req.io) {
+      req.io.to(`complaint_${complaintId}`).emit("complaint_updated", updated);
+      req.io.emit("complaint_updated", updated);
+      req.io.to(`user_${updated.createdBy?._id}`).emit("complaint_status_changed", {
+        complaintId,
+        status,
+        complaint: updated,
       });
     }
 
-    const staffAllowed = ["In-Progress", "Onhold", "Completed"];
-    if (!staffAllowed.includes(status)) {
-      return res
-        .status(403)
-        .json({ message: "Assigned staff cannot set this status" });
-    }
-
-    complaint.status = status;
-    await complaint.save();
-    const updated = await Complaint.findById(complaintId).populate(
-      "assignedTo",
-      "username email",
-    );
     res.json({ message: "Status updated", complaint: updated });
   } catch (error) {
     res
@@ -372,20 +444,43 @@ exports.generateReport = async (req, res) => {
 
 exports.getComplaintById = async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.id)
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+    const complaint = await Complaint.findById(id)
       .populate({
         path: "createdBy",
-        select: "username email department",
+        select: "username email department phone",
         populate: { path: "department", select: "name" },
       })
       .populate({
         path: "assignedTo",
-        select: "username email role department",
+        select: "username email role department phone",
         populate: { path: "department", select: "name" },
       });
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
     }
+
+    // Permission enforcement
+    const requester = req.user;
+    if (requester) {
+      if (requester.role === "User") {
+        const creatorId = String(complaint.createdBy?._id || complaint.createdBy);
+        if (creatorId !== String(requester.id)) {
+          return res.status(403).json({ message: "Access denied: You can only view your own complaints" });
+        }
+      } else if (requester.role !== "SuperAdmin") {
+        const isCreator = String(complaint.createdBy?._id || complaint.createdBy) === String(requester.id);
+        const isAssignee = complaint.assignedTo && String(complaint.assignedTo?._id || complaint.assignedTo) === String(requester.id);
+        const isSameDept = requester.department && complaint.assignedTo?.department && String(complaint.assignedTo.department?._id || complaint.assignedTo.department) === String(requester.department);
+        if (!isCreator && !isAssignee && !isSameDept) {
+          return res.status(403).json({ message: "Access denied: Unauthorized to view this complaint" });
+        }
+      }
+    }
+
     res.json(complaint);
   } catch (error) {
     res

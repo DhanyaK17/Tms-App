@@ -49,6 +49,7 @@ const userSchema = new mongoose.Schema(
       mentions: { type: Boolean, default: true },
       weeklyReports: { type: Boolean, default: false },
     },
+    pushTokens: [{ type: String }],
   },
   { timestamps: true },
 );

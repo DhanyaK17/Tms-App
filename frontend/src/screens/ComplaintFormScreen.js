@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   complaintService,
   blockService,
@@ -38,6 +39,7 @@ const COMPLAINT_TYPES = [
 
 export const ComplaintFormScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { isSmallMobile } = useResponsive();
 
   const [departments, setDepartments] = useState([]);
@@ -236,11 +238,19 @@ export const ComplaintFormScreen = ({ navigation }) => {
         }
       }
 
-      await complaintService.create(formData);
+      const res = await complaintService.create(formData);
       setSuccess('Incident reported successfully!');
+      const newComplaint = res.data?.complaint;
       setTimeout(() => {
-        navigation.navigate('Home');
-      }, 1200);
+        if (newComplaint && newComplaint._id) {
+          navigation.navigate('ComplaintTracking', {
+            complaintId: newComplaint._id,
+            complaint: newComplaint,
+          });
+        } else {
+          navigation.navigate('Home');
+        }
+      }, 1000);
     } catch (err) {
       setError(err.response?.data?.message || 'Transmission failure. Please try again.');
     } finally {
@@ -261,7 +271,7 @@ export const ComplaintFormScreen = ({ navigation }) => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={[styles.scrollContent, isSmallMobile && { padding: SPACING.sm }]}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -270,8 +280,8 @@ export const ComplaintFormScreen = ({ navigation }) => {
         <View style={styles.innerContainer}>
         {/* Hero Section */}
         <View style={styles.hero}>
-          <Text style={styles.heroTitle}>Report Incident</Text>
-          <Text style={styles.heroSubtitle}>
+          <Text style={[styles.heroTitle, { color: colors.text }]}>Report Incident</Text>
+          <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
             Submit a maintenance or technical request to the facility response group
           </Text>
         </View>

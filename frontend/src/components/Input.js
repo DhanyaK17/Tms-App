@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, RADIUS, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
+import { RADIUS, SPACING } from '../constants/theme';
 
 export const Input = ({
   label,
@@ -19,30 +20,50 @@ export const Input = ({
   style = null,
   inputStyle = null,
 }) => {
+  const { colors, isDark } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(!secureTextEntry);
   const inputRef = useRef(null);
 
   return (
     <View style={[styles.container, style]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>}
       <Pressable
         onPress={() => inputRef.current?.focus()}
         style={[
           styles.inputWrapper,
-          isFocused && styles.inputFocused,
-          error ? styles.inputError : null,
+          {
+            backgroundColor: colors.inputBg,
+            borderColor: error
+              ? colors.red
+              : isFocused
+              ? colors.primary
+              : colors.borderLight,
+          },
+          isFocused && {
+            ...Platform.select({
+              web: {
+                boxShadow: `0px 0px 6px ${isDark ? 'rgba(0, 229, 255, 0.25)' : 'rgba(0, 131, 158, 0.25)'}`,
+              },
+              default: {
+                shadowColor: colors.primary,
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.2,
+                shadowRadius: 6,
+              },
+            }),
+          },
           !editable && styles.inputDisabled,
           multiline && { minHeight: 90, alignItems: 'flex-start' },
         ]}
       >
-        {icon && <View style={styles.leftIcon} pointerEvents="none">{icon}</View>}
+        {icon && <View style={[styles.leftIcon, { pointerEvents: 'none' }]}>{icon}</View>}
         <TextInput
           ref={inputRef}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={COLORS.textMuted}
+          placeholderTextColor={colors.textMuted}
           secureTextEntry={secureTextEntry && !showPassword}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
@@ -53,6 +74,7 @@ export const Input = ({
           onBlur={() => setIsFocused(false)}
           style={[
             styles.input,
+            { color: colors.text },
             multiline && styles.multilineInput,
             inputStyle,
           ]}
@@ -66,12 +88,12 @@ export const Input = ({
             <Ionicons
               name={showPassword ? 'eye-off-outline' : 'eye-outline'}
               size={20}
-              color={COLORS.textSecondary}
+              color={colors.textSecondary}
             />
           </Pressable>
         )}
       </Pressable>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text style={[styles.errorText, { color: colors.red }]}>{error}</Text> : null}
     </View>
   );
 };
@@ -81,7 +103,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   label: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 6,
@@ -90,40 +111,18 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     borderWidth: 1,
-    borderColor: COLORS.border,
     borderRadius: RADIUS.md,
     paddingHorizontal: 12,
   },
-  inputFocused: {
-    borderColor: COLORS.primary,
-    backgroundColor: 'rgba(0, 229, 255, 0.04)',
-    ...Platform.select({
-      web: {
-        boxShadow: '0px 0px 6px rgba(0, 229, 255, 0.2)',
-      },
-      default: {
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-      },
-    }),
-  },
-  inputError: {
-    borderColor: COLORS.red,
-  },
   inputDisabled: {
     opacity: 0.6,
-    backgroundColor: 'rgba(255, 255, 255, 0.01)',
   },
   leftIcon: {
     marginRight: 8,
   },
   input: {
     flex: 1,
-    color: COLORS.text,
     fontSize: 14,
     paddingVertical: 12,
     minHeight: 44,
@@ -143,7 +142,6 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   errorText: {
-    color: COLORS.red,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '500',

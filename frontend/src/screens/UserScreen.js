@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { userService, departmentService, roleService, programmeService } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Input from '../components/Input';
@@ -24,6 +25,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const UserScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { width } = useResponsive();
   const numCols = width >= 768 ? 2 : 1;
   const cardWidthPercent = numCols === 2 ? '50%' : '100%';
@@ -187,17 +189,17 @@ export const UserScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>User Access Directory</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>User Access Directory</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               Manage personnel accounts, credentials & assigned roles
             </Text>
           </View>
@@ -211,7 +213,7 @@ export const UserScreen = ({ navigation }) => {
 
         {error ? (
           <View style={styles.errorBox}>
-            <Ionicons name="alert-circle" size={18} color={COLORS.red} style={{ marginRight: 8 }} />
+            <Ionicons name="alert-circle" size={18} color={colors.danger || '#ef4444'} style={{ marginRight: 8 }} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
@@ -236,18 +238,18 @@ export const UserScreen = ({ navigation }) => {
                 <View key={u._id} style={[styles.gridItem, { width: cardWidthPercent }]}>
                   <Card style={styles.userCard}>
                     <View style={styles.userTop}>
-                      <View style={styles.userAvatar}>
-                        <Text style={styles.userAvatarText}>
+                      <View style={[styles.userAvatar, { backgroundColor: colors.surfaceLight, borderColor: colors.primary }]}>
+                        <Text style={[styles.userAvatarText, { color: colors.primary }]}>
                           {u.username?.charAt(0).toUpperCase()}
                         </Text>
                       </View>
                       <View style={{ flex: 1 }}>
                         <View style={styles.userNameRow}>
-                          <Text style={styles.userName}>{u.username}</Text>
+                          <Text style={[styles.userName, { color: colors.text }]}>{u.username}</Text>
                           <Badge status={u.role} size="sm" style={{ marginLeft: 6 }} />
                         </View>
-                        <Text style={styles.userEmail}>{u.email}</Text>
-                        <Text style={styles.userDept}>
+                        <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{u.email}</Text>
+                        <Text style={[styles.userDept, { color: colors.textMuted }]}>
                           Dept: {deptName} • {u.phone}
                         </Text>
                       </View>
@@ -312,40 +314,53 @@ export const UserScreen = ({ navigation }) => {
               secureTextEntry
             />
 
-            <Text style={styles.fieldLabel}>Authorization Role *</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Authorization Role *</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
               {roles.map((r) => (
                 <Pressable
                   key={r}
-                  style={[styles.pill, formData.role === r && styles.pillActive]}
+                  style={[
+                    styles.pill,
+                    { borderColor: colors.borderLight },
+                    formData.role === r && styles.pillActive,
+                  ]}
                   onPress={() => setFormData({ ...formData, role: r })}
                 >
-                  <Text style={[styles.pillText, formData.role === r && styles.pillTextActive]}>
+                  <Text style={[styles.pillText, { color: colors.textSecondary }, formData.role === r && styles.pillTextActive]}>
                     {r}
                   </Text>
                 </Pressable>
               ))}
             </ScrollView>
 
-            <Text style={styles.fieldLabel}>Mapped Department</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Mapped Department</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
               <Pressable
-                style={[styles.pill, !formData.department && styles.pillActive]}
+                style={[
+                  styles.pill,
+                  { borderColor: colors.borderLight },
+                  !formData.department && styles.pillActive,
+                ]}
                 onPress={() => setFormData({ ...formData, department: '' })}
               >
-                <Text style={[styles.pillText, !formData.department && styles.pillTextActive]}>
+                <Text style={[styles.pillText, { color: colors.textSecondary }, !formData.department && styles.pillTextActive]}>
                   None
                 </Text>
               </Pressable>
               {departments.map((d) => (
                 <Pressable
                   key={d._id}
-                  style={[styles.pill, formData.department === d._id && styles.pillActive]}
+                  style={[
+                    styles.pill,
+                    { borderColor: colors.borderLight },
+                    formData.department === d._id && styles.pillActive,
+                  ]}
                   onPress={() => setFormData({ ...formData, department: d._id })}
                 >
                   <Text
                     style={[
                       styles.pillText,
+                      { color: colors.textSecondary },
                       formData.department === d._id && styles.pillTextActive,
                     ]}
                   >

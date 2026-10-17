@@ -6,9 +6,12 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { API_BASE_URL } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Input from '../components/Input';
@@ -18,6 +21,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext);
+  const { colors, isDark, toggleTheme } = useTheme();
   const { isMobile, isSmallMobile, isLandscape } = useResponsive();
 
   const [email, setEmail] = useState('');
@@ -58,7 +62,7 @@ export const LoginScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <ScrollView
@@ -72,29 +76,56 @@ export const LoginScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
+        {/* Top Floating Theme Switcher */}
+        <View style={styles.topBar}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.themeSwitchBtn,
+              { backgroundColor: colors.surfaceCard, borderColor: colors.borderLight },
+              pressed && { opacity: 0.8 },
+            ]}
+            onPress={toggleTheme}
+            accessibilityLabel={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+          >
+            <Ionicons
+              name={isDark ? 'sunny' : 'moon'}
+              size={16}
+              color={isDark ? colors.amber : colors.primary}
+            />
+            <Text style={[styles.themeSwitchText, { color: colors.textSecondary }]}>
+              {isDark ? 'Light' : 'Dark'}
+            </Text>
+          </Pressable>
+        </View>
+
         <Card
           style={[
             styles.loginCard,
+            { backgroundColor: colors.surfaceCard, borderColor: colors.borderLight },
             isMobile && styles.loginCardMobile,
             isSmallMobile && styles.loginCardSmall,
           ]}
           glow
         >
-            {/* Header Brand */}
+            {/* Header Brand with Real TMS Logo */}
             <View style={styles.brandRow}>
-              <View style={styles.logoBadge}>
-                <Text style={styles.logoBadgeText}>T</Text>
+              <View style={[styles.logoBadge, { backgroundColor: '#ffffff', borderColor: colors.borderLight }]}>
+                <Image
+                  source={require('../assets/logo.png')}
+                  style={styles.logoImage}
+                  resizeMode="contain"
+                />
               </View>
               <View>
-                <Text style={styles.brandTitle}>TMS PLATFORM</Text>
-                <Text style={styles.brandSubtitle}>COMPLAINT MANAGEMENT SYSTEM</Text>
+                <Text style={[styles.brandTitle, { color: colors.text }]}>TMS PLATFORM</Text>
+                <Text style={[styles.brandSubtitle, { color: colors.primary }]}>COMPLAINT MANAGEMENT SYSTEM</Text>
               </View>
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
 
-            <Text style={styles.welcomeTitle}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Secure Operator Authentication</Text>
+            <Text style={[styles.welcomeTitle, { color: colors.text }]}>Welcome Back</Text>
+            <Text style={[styles.subtitle, { color: colors.textMuted }]}>Secure Operator Authentication</Text>
 
             {error ? (
               <View style={styles.errorContainer}>
@@ -182,31 +213,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.md,
   },
+  topBar: {
+    width: '100%',
+    maxWidth: 440,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: SPACING.sm,
+  },
+  themeSwitchBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    gap: 6,
+  },
+  themeSwitchText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
   logoBadge: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     borderRadius: RADIUS.md,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.sm,
+    overflow: 'hidden',
+    borderWidth: 1,
+    padding: 3,
     ...Platform.select({
       web: {
-        boxShadow: '0px 4px 10px rgba(0, 240, 255, 0.4)',
+        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.15)',
       },
       default: {
-        shadowColor: COLORS.primary,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
+        shadowOpacity: 0.15,
         shadowRadius: 10,
         elevation: 6,
       },
     }),
   },
-  logoBadgeText: {
-    color: '#040810',
-    fontSize: 24,
-    fontWeight: '900',
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   brandTitle: {
     color: COLORS.text,

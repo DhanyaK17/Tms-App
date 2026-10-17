@@ -1,27 +1,46 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import { COLORS, RADIUS } from '../constants/theme';
 
 export const Badge = ({ label, status = 'default', size = 'md', style = null }) => {
+  const { colors, isDark } = useTheme();
+
   const getColors = () => {
     switch (status) {
       case 'Pending':
-        return { bg: 'rgba(245, 158, 11, 0.15)', text: COLORS.amber, border: 'rgba(245, 158, 11, 0.3)' };
+        return isDark
+          ? { bg: 'rgba(245, 158, 11, 0.15)', text: colors.amber, border: 'rgba(245, 158, 11, 0.3)' }
+          : { bg: '#fef3c7', text: '#b45309', border: '#fde68a' };
       case 'Assigned':
-        return { bg: 'rgba(168, 85, 247, 0.15)', text: COLORS.violet, border: 'rgba(168, 85, 247, 0.3)' };
+        return isDark
+          ? { bg: 'rgba(168, 85, 247, 0.15)', text: colors.violet, border: 'rgba(168, 85, 247, 0.3)' }
+          : { bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' };
       case 'In-Progress':
-        return { bg: 'rgba(0, 229, 255, 0.15)', text: COLORS.cyan, border: 'rgba(0, 229, 255, 0.3)' };
+        return isDark
+          ? { bg: 'rgba(0, 229, 255, 0.15)', text: colors.cyan, border: 'rgba(0, 229, 255, 0.3)' }
+          : { bg: '#e0f2fe', text: '#0284c7', border: '#bae6fd' };
       case 'Onhold':
-        return { bg: 'rgba(249, 115, 22, 0.15)', text: '#f97316', border: 'rgba(249, 115, 22, 0.3)' };
+        return isDark
+          ? { bg: 'rgba(249, 115, 22, 0.15)', text: '#f97316', border: 'rgba(249, 115, 22, 0.3)' }
+          : { bg: '#ffedd5', text: '#c2410c', border: '#fed7aa' };
       case 'Completed':
       case 'Resolved':
-        return { bg: 'rgba(16, 185, 129, 0.15)', text: COLORS.green, border: 'rgba(16, 185, 129, 0.3)' };
+        return isDark
+          ? { bg: 'rgba(16, 185, 129, 0.15)', text: colors.green, border: 'rgba(16, 185, 129, 0.3)' }
+          : { bg: '#dcfce7', text: '#15803d', border: '#bbf7d0' };
       case 'SuperAdmin':
-        return { bg: 'rgba(0, 229, 255, 0.2)', text: COLORS.cyan, border: COLORS.primary };
+        return isDark
+          ? { bg: 'rgba(0, 229, 255, 0.2)', text: colors.cyan, border: colors.primary }
+          : { bg: '#e0f2fe', text: '#0284c7', border: '#7dd3fc' };
       case 'User':
-        return { bg: 'rgba(255, 255, 255, 0.08)', text: COLORS.textSecondary, border: COLORS.borderLight };
+        return isDark
+          ? { bg: 'rgba(255, 255, 255, 0.08)', text: colors.textSecondary, border: colors.borderLight }
+          : { bg: '#f1f5f9', text: '#475569', border: '#cbd5e1' };
       default:
-        return { bg: 'rgba(59, 130, 246, 0.15)', text: COLORS.blue, border: 'rgba(59, 130, 246, 0.3)' };
+        return isDark
+          ? { bg: 'rgba(59, 130, 246, 0.15)', text: colors.blue, border: 'rgba(59, 130, 246, 0.3)' }
+          : { bg: '#eff6ff', text: '#1d4ed8', border: '#bfdbfe' };
     }
   };
 

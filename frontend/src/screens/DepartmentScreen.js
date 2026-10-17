@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { departmentService } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import Input from '../components/Input';
@@ -22,6 +23,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const DepartmentScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { width } = useResponsive();
 
   const [departments, setDepartments] = useState([]);
@@ -139,17 +141,17 @@ export const DepartmentScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerTitle}>Department Hub</Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Department Hub</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
               Department unit directory & code identifier mappings
             </Text>
           </View>
@@ -180,12 +182,12 @@ export const DepartmentScreen = ({ navigation }) => {
           <View style={styles.list}>
             {departments.map((dept) => (
               <View key={dept._id} style={[styles.gridItem, { width: cardWidthPercent }]}>
-                <Card style={styles.deptCard}>
+                <Card style={[styles.deptCard, { backgroundColor: colors.surfaceCard, borderColor: colors.borderLight }]}>
                   <View style={styles.deptTop}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.deptName}>{dept.name}</Text>
-                      <View style={styles.codeTag}>
-                        <Text style={styles.codeText}>{dept.shortName}</Text>
+                      <Text style={[styles.deptName, { color: colors.text }]}>{dept.name}</Text>
+                      <View style={[styles.codeTag, { backgroundColor: `${colors.primary}20` }]}>
+                        <Text style={[styles.codeText, { color: colors.primary }]}>{dept.shortName}</Text>
                       </View>
                     </View>
 

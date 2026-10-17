@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet, ActivityIndicator, View, Platform } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import { COLORS, RADIUS } from '../constants/theme';
 
 export const Button = ({
@@ -13,7 +14,50 @@ export const Button = ({
   style = null,
   textStyle = null,
 }) => {
+  const { colors, isDark } = useTheme();
   const isInteractive = !loading && !disabled;
+
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'primary':
+        return {
+          btn: { backgroundColor: colors.primary },
+          text: { color: isDark ? '#040810' : '#ffffff' },
+        };
+      case 'secondary':
+        return {
+          btn: { backgroundColor: colors.surfaceLight, borderColor: colors.borderLight, borderWidth: 1 },
+          text: { color: colors.text },
+        };
+      case 'outline':
+        return {
+          btn: { backgroundColor: 'transparent', borderColor: colors.primary, borderWidth: 1 },
+          text: { color: colors.primary },
+        };
+      case 'ghost':
+        return {
+          btn: { backgroundColor: 'transparent' },
+          text: { color: colors.primary },
+        };
+      case 'success':
+        return {
+          btn: { backgroundColor: colors.green },
+          text: { color: '#ffffff' },
+        };
+      case 'danger':
+        return {
+          btn: { backgroundColor: colors.red },
+          text: { color: '#ffffff' },
+        };
+      default:
+        return {
+          btn: {},
+          text: {},
+        };
+    }
+  };
+
+  const vStyles = getVariantStyles();
 
   return (
     <Pressable
@@ -22,6 +66,7 @@ export const Button = ({
         styles.base,
         styles[variant],
         styles[`size_${size}`],
+        vStyles.btn,
         disabled && styles.disabled,
         pressed && isInteractive && styles.pressed,
         style,
@@ -30,7 +75,7 @@ export const Button = ({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'outline' || variant === 'ghost' ? COLORS.primary : COLORS.textDark}
+          color={variant === 'outline' || variant === 'ghost' ? colors.primary : (isDark ? '#040810' : '#ffffff')}
         />
       ) : (
         <View style={styles.contentRow}>
@@ -41,6 +86,7 @@ export const Button = ({
                 styles.textBase,
                 styles[`text_${variant}`],
                 styles[`textSize_${size}`],
+                vStyles.text,
                 disabled && styles.textDisabled,
                 textStyle,
               ]}

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { complaintService } from '../services/api';
 import { COLORS, RADIUS, SPACING } from '../constants/theme';
 import StatCard from '../components/StatCard';
@@ -18,6 +19,7 @@ import { useResponsive } from '../utils/responsive';
 
 export const HomeScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
+  const { colors, isDark } = useTheme();
   const { isSmallMobile, width } = useResponsive();
 
   const [stats, setStats] = useState({ total: 0, pending: 0, assigned: 0, closed: 0 });
@@ -91,53 +93,74 @@ export const HomeScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.scrollContent}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <View style={styles.innerContainer}>
         {/* Tactical Hero Card */}
         <Card style={[styles.heroCard, isSmallMobile && { padding: SPACING.md }]} glow>
           <View style={styles.heroHeader}>
-            <View style={styles.heroBadge}>
-              <Text style={styles.heroBadgeText}>TMS TACTICAL COMMAND</Text>
+            <View
+              style={[
+                styles.heroBadge,
+                {
+                  backgroundColor: isDark ? 'rgba(0, 229, 255, 0.1)' : 'rgba(0, 131, 158, 0.08)',
+                  borderColor: isDark ? 'rgba(0, 229, 255, 0.3)' : 'rgba(0, 131, 158, 0.25)',
+                },
+              ]}
+            >
+              <Text style={[styles.heroBadgeText, { color: colors.primary }]}>TMS TACTICAL COMMAND</Text>
             </View>
-            <View style={styles.userRoleBadge}>
+            <View
+              style={[
+                styles.userRoleBadge,
+                { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)' },
+              ]}
+            >
               <View style={styles.dot} />
-              <Text style={styles.userRoleText}>
+              <Text style={[styles.userRoleText, { color: colors.text }]}>
                 {user?.role ? user.role.toUpperCase() : 'OPERATOR'} ACCESS
               </Text>
             </View>
           </View>
 
-          <Text style={styles.heroTitle}>
+          <Text style={[styles.heroTitle, { color: colors.text }]}>
             {user?.role === 'SuperAdmin'
               ? 'Super Admin Command Hub'
               : 'Facility Maintenance Hub'}
           </Text>
-          <Text style={styles.heroSubtitle}>
+          <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
             Real-time incident oversight, operational telemetry, and field technician dispatch.
           </Text>
 
-          <View style={styles.userGreetingPod}>
-            <View style={styles.avatarLarge}>
-              <Text style={styles.avatarLargeText}>
+          <View
+            style={[
+              styles.userGreetingPod,
+              {
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)',
+                borderColor: colors.borderLight,
+              },
+            ]}
+          >
+            <View style={[styles.avatarLarge, { backgroundColor: colors.surfaceLight, borderColor: colors.primary }]}>
+              <Text style={[styles.avatarLargeText, { color: colors.primary }]}>
                 {user?.username?.charAt(0).toUpperCase() || 'U'}
               </Text>
             </View>
             <View>
-              <Text style={styles.greetingText}>Welcome back, Operator</Text>
-              <Text style={styles.displayName}>{user?.username || 'Operator'}</Text>
+              <Text style={[styles.greetingText, { color: colors.textMuted }]}>Welcome back, Operator</Text>
+              <Text style={[styles.displayName, { color: colors.text }]}>{user?.username || 'Operator'}</Text>
             </View>
           </View>
         </Card>
 
         {/* Live Metrics Grid */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>⚡ LIVE SYSTEM METRICS</Text>
-          <Text style={styles.sectionSub}>REAL-TIME INCIDENT TELEMETRY</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>⚡ LIVE SYSTEM METRICS</Text>
+          <Text style={[styles.sectionSub, { color: colors.textMuted }]}>REAL-TIME INCIDENT TELEMETRY</Text>
         </View>
 
         <View style={styles.metricsGrid}>
@@ -146,7 +169,7 @@ export const HomeScreen = ({ navigation }) => {
               title="Total Incidents"
               value={stats.total}
               color="cyan"
-              icon={<Ionicons name="analytics-outline" size={16} color={COLORS.cyan} />}
+              icon={<Ionicons name="analytics-outline" size={16} color={colors.cyan} />}
               onPress={() => navigation.navigate(ticketsRoute)}
             />
           </View>
@@ -155,7 +178,7 @@ export const HomeScreen = ({ navigation }) => {
               title="Awaiting Triage"
               value={stats.pending}
               color="amber"
-              icon={<Ionicons name="time-outline" size={16} color={COLORS.amber} />}
+              icon={<Ionicons name="time-outline" size={16} color={colors.amber} />}
               onPress={() => navigation.navigate(ticketsRoute)}
             />
           </View>
@@ -164,7 +187,7 @@ export const HomeScreen = ({ navigation }) => {
               title="In Field View"
               value={stats.assigned}
               color="violet"
-              icon={<Ionicons name="construct-outline" size={16} color={COLORS.violet} />}
+              icon={<Ionicons name="construct-outline" size={16} color={colors.violet} />}
               onPress={() => navigation.navigate(ticketsRoute)}
             />
           </View>
@@ -173,7 +196,7 @@ export const HomeScreen = ({ navigation }) => {
               title="Resolved Units"
               value={stats.closed}
               color="green"
-              icon={<Ionicons name="checkmark-done-outline" size={16} color={COLORS.green} />}
+              icon={<Ionicons name="checkmark-done-outline" size={16} color={colors.green} />}
               onPress={() => navigation.navigate(ticketsRoute)}
             />
           </View>
@@ -181,8 +204,8 @@ export const HomeScreen = ({ navigation }) => {
 
         {/* Quick Action Consoles */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>🚀 QUICK ACTION CONSOLE</Text>
-          <Text style={styles.sectionSub}>DIRECT OPERATIONAL ACCESS</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>🚀 QUICK ACTION CONSOLE</Text>
+          <Text style={[styles.sectionSub, { color: colors.textMuted }]}>DIRECT OPERATIONAL ACCESS</Text>
         </View>
 
         <View style={styles.actionsGrid}>
@@ -197,28 +220,43 @@ export const HomeScreen = ({ navigation }) => {
               <Pressable
                 style={({ pressed }) => [
                   styles.actionCard,
-                  link.highlight && styles.actionCardHighlight,
+                  { backgroundColor: colors.surfaceCard, borderColor: colors.borderLight },
+                  link.highlight && {
+                    borderColor: colors.primary,
+                    backgroundColor: isDark ? 'rgba(0, 229, 255, 0.08)' : 'rgba(0, 131, 158, 0.06)',
+                  },
                   pressed && styles.cardPressed,
                 ]}
                 onPress={() => navigation.navigate(link.route)}
               >
                 <View style={styles.actionTop}>
-                  <View style={[styles.actionIconBox, link.highlight && styles.highlightIconBox]}>
+                  <View
+                    style={[
+                      styles.actionIconBox,
+                      { backgroundColor: isDark ? 'rgba(0, 229, 255, 0.12)' : 'rgba(0, 131, 158, 0.1)' },
+                      link.highlight && { backgroundColor: colors.primary },
+                    ]}
+                  >
                     <Ionicons
                       name={link.icon}
                       size={20}
-                      color={link.highlight ? '#040810' : COLORS.primary}
+                      color={link.highlight ? (isDark ? '#040810' : '#ffffff') : colors.primary}
                     />
                   </View>
                   {link.tag && (
-                    <View style={styles.tagBadge}>
-                      <Text style={styles.tagText}>{link.tag}</Text>
+                    <View
+                      style={[
+                        styles.tagBadge,
+                        { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' },
+                      ]}
+                    >
+                      <Text style={[styles.tagText, { color: colors.textSecondary }]}>{link.tag}</Text>
                     </View>
                   )}
-                  <Ionicons name="arrow-forward" size={16} color={COLORS.textMuted} style={styles.arrow} />
+                  <Ionicons name="arrow-forward" size={16} color={colors.textMuted} style={styles.arrow} />
                 </View>
-                <Text style={styles.actionTitle}>{link.label}</Text>
-                <Text style={styles.actionDesc} numberOfLines={2}>
+                <Text style={[styles.actionTitle, { color: colors.text }]}>{link.label}</Text>
+                <Text style={[styles.actionDesc, { color: colors.textSecondary }]} numberOfLines={2}>
                   {link.desc}
                 </Text>
               </Pressable>
@@ -231,15 +269,15 @@ export const HomeScreen = ({ navigation }) => {
           <View style={styles.recentSection}>
             <View style={styles.recentHeaderRow}>
               <View>
-                <Text style={styles.sectionTitle}>📡 RECENT INCIDENTS</Text>
-                <Text style={styles.sectionSub}>LATEST ACTIVITY LOG</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>📡 RECENT INCIDENTS</Text>
+                <Text style={[styles.sectionSub, { color: colors.textMuted }]}>LATEST ACTIVITY LOG</Text>
               </View>
               <Pressable
                 onPress={() => navigation.navigate(ticketsRoute)}
                 style={styles.viewAllBtn}
               >
-                <Text style={styles.viewAllText}>View All</Text>
-                <Ionicons name="arrow-forward" size={14} color={COLORS.primary} />
+                <Text style={[styles.viewAllText, { color: colors.primary }]}>View All</Text>
+                <Ionicons name="arrow-forward" size={14} color={colors.primary} />
               </Pressable>
             </View>
 
@@ -247,29 +285,33 @@ export const HomeScreen = ({ navigation }) => {
               {recentTickets.map((ticket) => (
                 <Pressable
                   key={ticket._id}
-                  style={({ pressed }) => [styles.ticketCard, pressed && styles.cardPressed]}
-                  onPress={() => navigation.navigate(ticketsRoute)}
+                  style={({ pressed }) => [
+                    styles.ticketCard,
+                    { backgroundColor: colors.surfaceCard, borderColor: colors.borderLight },
+                    pressed && styles.cardPressed,
+                  ]}
+                  onPress={() => navigation.navigate('ComplaintTracking', { complaintId: ticket._id, complaint: ticket })}
                 >
                   <View style={styles.ticketTopRow}>
                     <View style={styles.locationContainer}>
-                      <Ionicons name="business-outline" size={14} color={COLORS.primary} style={{ marginRight: 4 }} />
-                      <Text style={styles.ticketLocation}>
+                      <Ionicons name="business-outline" size={14} color={colors.primary} style={{ marginRight: 4 }} />
+                      <Text style={[styles.ticketLocation, { color: colors.text }]}>
                         {ticket.blockName} • {ticket.roomNumber}
                       </Text>
                     </View>
                     <Badge status={ticket.status} size="sm" />
                   </View>
 
-                  <Text style={styles.ticketCategory}>{ticket.complaintType}</Text>
-                  <Text style={styles.ticketRemarks} numberOfLines={2}>
+                  <Text style={[styles.ticketCategory, { color: colors.primary }]}>{ticket.complaintType}</Text>
+                  <Text style={[styles.ticketRemarks, { color: colors.textSecondary }]} numberOfLines={2}>
                     {ticket.remarks || 'No detailed remarks submitted.'}
                   </Text>
 
-                  <View style={styles.ticketBottomRow}>
-                    <Text style={styles.ticketDate}>
+                  <View style={[styles.ticketBottomRow, { borderTopColor: colors.borderLight }]}>
+                    <Text style={[styles.ticketDate, { color: colors.textMuted }]}>
                       {new Date(ticket.createdAt).toLocaleDateString()}
                     </Text>
-                    <Text style={styles.ticketBy}>
+                    <Text style={[styles.ticketBy, { color: colors.textSecondary }]}>
                       By: {ticket.createdBy?.username || 'Anonymous'}
                     </Text>
                   </View>
@@ -299,8 +341,6 @@ const styles = StyleSheet.create({
   heroCard: {
     padding: SPACING.xl,
     marginBottom: SPACING.xl,
-    backgroundColor: COLORS.surface,
-    borderColor: COLORS.border,
   },
   heroHeader: {
     flexDirection: 'row',
@@ -427,9 +467,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xl,
   },
   actionCard: {
-    backgroundColor: COLORS.surfaceCard,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
     borderRadius: RADIUS.md,
     padding: SPACING.md,
     minHeight: 120,

@@ -126,3 +126,44 @@ exports.deleteUser = async (req, res) => {
       .json({ message: "Failed to delete user", error: error.message });
   }
 };
+
+// Register/save device push token for the authenticated user
+exports.savePushToken = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "Push token is required" });
+    }
+
+    await User.findByIdAndUpdate(req.user.id, {
+      $addToSet: { pushTokens: token },
+    });
+
+    res.json({ message: "Push token registered successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to save push token", error: error.message });
+  }
+};
+
+// Remove device push token on logout
+exports.removePushToken = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "Push token is required" });
+    }
+
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { pushTokens: token },
+    });
+
+    res.json({ message: "Push token removed successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to remove push token", error: error.message });
+  }
+};
+
