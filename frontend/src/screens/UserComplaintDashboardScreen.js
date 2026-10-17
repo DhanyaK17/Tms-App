@@ -320,9 +320,8 @@ export const UserComplaintDashboardScreen = ({ navigation }) => {
                   <Button
                     title="View Attached Evidence ↗"
                     onPress={() => {
-                      const fullUrl = `${FILE_BASE_URL}${
-                        selectedComplaint.attachment.startsWith('/') ? '' : '/'
-                      }${selectedComplaint.attachment}`;
+                      const fullUrl = `${FILE_BASE_URL}${selectedComplaint.attachment.startsWith('/') ? '' : '/'
+                        }${selectedComplaint.attachment}`;
                       Linking.openURL(fullUrl);
                     }}
                     variant="outline"

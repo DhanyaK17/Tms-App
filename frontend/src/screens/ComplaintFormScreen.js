@@ -278,174 +278,174 @@ export const ComplaintFormScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.innerContainer}>
-        {/* Hero Section */}
-        <View style={styles.hero}>
-          <Text style={[styles.heroTitle, { color: colors.text }]}>Report Incident</Text>
-          <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-            Submit a maintenance or technical request to the facility response group
-          </Text>
-        </View>
-
-        {error ? (
-          <View style={styles.errorBox}>
-            <Ionicons name="alert-circle" size={18} color={COLORS.red} style={{ marginRight: 8 }} />
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        ) : null}
-
-        {success ? (
-          <View style={styles.successBox}>
-            <Ionicons name="checkmark-circle" size={18} color={COLORS.green} style={{ marginRight: 8 }} />
-            <Text style={styles.successText}>{success}</Text>
-          </View>
-        ) : null}
-
-        <Card style={[styles.formCard, isSmallMobile && { padding: SPACING.md }]} glow>
-          {/* Department Picker */}
-          <Text style={styles.fieldLabel}>Target Department *</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
-            {departments.map((d) => (
-              <Pressable
-                key={d._id}
-                style={[styles.pill, departmentId === d._id && styles.pillActive]}
-                onPress={() => setDepartmentId(d._id)}
-              >
-                <Text style={[styles.pillText, departmentId === d._id && styles.pillTextActive]}>
-                  {d.name}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          {/* Block Picker */}
-          <Text style={styles.fieldLabel}>Sector / Block *</Text>
-          {blocks.length === 0 ? (
-            <Text style={styles.hintText}>
-              {departmentId ? 'No blocks mapped to this department' : 'Select a department first'}
+          {/* Hero Section */}
+          <View style={styles.hero}>
+            <Text style={[styles.heroTitle, { color: colors.text }]}>Report Incident</Text>
+            <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
+              Submit a maintenance or technical request to the facility response group
             </Text>
-          ) : (
+          </View>
+
+          {error ? (
+            <View style={styles.errorBox}>
+              <Ionicons name="alert-circle" size={18} color={COLORS.red} style={{ marginRight: 8 }} />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
+          {success ? (
+            <View style={styles.successBox}>
+              <Ionicons name="checkmark-circle" size={18} color={COLORS.green} style={{ marginRight: 8 }} />
+              <Text style={styles.successText}>{success}</Text>
+            </View>
+          ) : null}
+
+          <Card style={[styles.formCard, isSmallMobile && { padding: SPACING.md }]} glow>
+            {/* Department Picker */}
+            <Text style={styles.fieldLabel}>Target Department *</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
-              {blocks.map((b) => (
+              {departments.map((d) => (
                 <Pressable
-                  key={b._id}
-                  style={[styles.pill, blockId === b._id && styles.pillActive]}
-                  onPress={() => setBlockId(b._id)}
+                  key={d._id}
+                  style={[styles.pill, departmentId === d._id && styles.pillActive]}
+                  onPress={() => setDepartmentId(d._id)}
                 >
-                  <Text style={[styles.pillText, blockId === b._id && styles.pillTextActive]}>
-                    {b.name}
+                  <Text style={[styles.pillText, departmentId === d._id && styles.pillTextActive]}>
+                    {d.name}
                   </Text>
                 </Pressable>
               ))}
             </ScrollView>
-          )}
 
-          {/* Room Picker */}
-          <Text style={styles.fieldLabel}>Facility / Room *</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
-            {rooms.map((r) => (
-              <Pressable
-                key={r._id}
-                style={[styles.pill, roomId === r._id && styles.pillActive]}
-                onPress={() => setRoomId(r._id)}
-              >
-                <Text style={[styles.pillText, roomId === r._id && styles.pillTextActive]}>
-                  {r.roomNumber}
-                </Text>
-              </Pressable>
-            ))}
-            <Pressable
-              style={[styles.pill, roomId === '__manual__' && styles.pillActive]}
-              onPress={() => setRoomId('__manual__')}
-            >
-              <Text style={[styles.pillText, roomId === '__manual__' && styles.pillTextActive]}>
-                + Manual Room
+            {/* Block Picker */}
+            <Text style={styles.fieldLabel}>Sector / Block *</Text>
+            {blocks.length === 0 ? (
+              <Text style={styles.hintText}>
+                {departmentId ? 'No blocks mapped to this department' : 'Select a department first'}
               </Text>
-            </Pressable>
-          </ScrollView>
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
+                {blocks.map((b) => (
+                  <Pressable
+                    key={b._id}
+                    style={[styles.pill, blockId === b._id && styles.pillActive]}
+                    onPress={() => setBlockId(b._id)}
+                  >
+                    <Text style={[styles.pillText, blockId === b._id && styles.pillTextActive]}>
+                      {b.name}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            )}
 
-          {roomId === '__manual__' && (
-            <Input
-              label="Custom Room Identifier *"
-              value={customRoomNumber}
-              onChangeText={setCustomRoomNumber}
-              placeholder="e.g. LAB-001 or HALLWAY-B"
-              style={{ marginTop: SPACING.sm }}
-            />
-          )}
-
-          {/* Service Category */}
-          <Text style={styles.fieldLabel}>Service Category *</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
-            {COMPLAINT_TYPES.map((t) => (
+            {/* Room Picker */}
+            <Text style={styles.fieldLabel}>Facility / Room *</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
+              {rooms.map((r) => (
+                <Pressable
+                  key={r._id}
+                  style={[styles.pill, roomId === r._id && styles.pillActive]}
+                  onPress={() => setRoomId(r._id)}
+                >
+                  <Text style={[styles.pillText, roomId === r._id && styles.pillTextActive]}>
+                    {r.roomNumber}
+                  </Text>
+                </Pressable>
+              ))}
               <Pressable
-                key={t}
-                style={[styles.pill, type === t && styles.pillActive]}
-                onPress={() => setType(t)}
+                style={[styles.pill, roomId === '__manual__' && styles.pillActive]}
+                onPress={() => setRoomId('__manual__')}
               >
-                <Text style={[styles.pillText, type === t && styles.pillTextActive]}>
-                  {t}
+                <Text style={[styles.pillText, roomId === '__manual__' && styles.pillTextActive]}>
+                  + Manual Room
                 </Text>
               </Pressable>
-            ))}
-          </ScrollView>
+            </ScrollView>
 
-          {/* Description / Remarks */}
-          <Input
-            label="Description of Incident"
-            value={remarks}
-            onChangeText={setRemarks}
-            placeholder="Describe the operational fault, symptoms, or error..."
-            multiline
-            numberOfLines={4}
-            style={{ marginTop: SPACING.md }}
-          />
+            {roomId === '__manual__' && (
+              <Input
+                label="Custom Room Identifier *"
+                value={customRoomNumber}
+                onChangeText={setCustomRoomNumber}
+                placeholder="e.g. LAB-001 or HALLWAY-B"
+                style={{ marginTop: SPACING.sm }}
+              />
+            )}
 
-          {/* Evidence Upload */}
-          <Text style={styles.fieldLabel}>Evidence Documentation</Text>
-          <View style={styles.uploadZone}>
-            <View style={styles.uploadButtonRow}>
-              <Button
-                title="Attach Document / PDF"
-                onPress={handlePickDocument}
-                variant="secondary"
-                size="sm"
-                icon={<Ionicons name="document-attach-outline" size={16} color={COLORS.primary} />}
-              />
-              <Button
-                title="Attach Photo"
-                onPress={handlePickImage}
-                variant="secondary"
-                size="sm"
-                icon={<Ionicons name="image-outline" size={16} color={COLORS.primary} />}
-              />
+            {/* Service Category */}
+            <Text style={styles.fieldLabel}>Service Category *</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillList}>
+              {COMPLAINT_TYPES.map((t) => (
+                <Pressable
+                  key={t}
+                  style={[styles.pill, type === t && styles.pillActive]}
+                  onPress={() => setType(t)}
+                >
+                  <Text style={[styles.pillText, type === t && styles.pillTextActive]}>
+                    {t}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            {/* Description / Remarks */}
+            <Input
+              label="Description of Incident"
+              value={remarks}
+              onChangeText={setRemarks}
+              placeholder="Describe the operational fault, symptoms, or error..."
+              multiline
+              numberOfLines={4}
+              style={{ marginTop: SPACING.md }}
+            />
+
+            {/* Evidence Upload */}
+            <Text style={styles.fieldLabel}>Evidence Documentation</Text>
+            <View style={styles.uploadZone}>
+              <View style={styles.uploadButtonRow}>
+                <Button
+                  title="Attach Document / PDF"
+                  onPress={handlePickDocument}
+                  variant="secondary"
+                  size="sm"
+                  icon={<Ionicons name="document-attach-outline" size={16} color={COLORS.primary} />}
+                />
+                <Button
+                  title="Attach Photo"
+                  onPress={handlePickImage}
+                  variant="secondary"
+                  size="sm"
+                  icon={<Ionicons name="image-outline" size={16} color={COLORS.primary} />}
+                />
+              </View>
+
+              {attachment && (
+                <View style={styles.attachmentBadge}>
+                  <Ionicons name="checkmark-circle" size={18} color={COLORS.green} style={{ marginRight: 6 }} />
+                  <Text style={styles.attachmentName} numberOfLines={1}>
+                    {attachment.name}
+                  </Text>
+                  <Pressable onPress={() => setAttachment(null)} hitSlop={8} style={{ marginLeft: 8 }}>
+                    <Ionicons name="close-circle" size={18} color={COLORS.red} />
+                  </Pressable>
+                </View>
+              )}
             </View>
 
-            {attachment && (
-              <View style={styles.attachmentBadge}>
-                <Ionicons name="checkmark-circle" size={18} color={COLORS.green} style={{ marginRight: 6 }} />
-                <Text style={styles.attachmentName} numberOfLines={1}>
-                  {attachment.name}
-                </Text>
-                <Pressable onPress={() => setAttachment(null)} hitSlop={8} style={{ marginLeft: 8 }}>
-                  <Ionicons name="close-circle" size={18} color={COLORS.red} />
-                </Pressable>
-              </View>
-            )}
-          </View>
-
-          {/* Submit */}
-          <Button
-            title={submitting ? 'Transmitting Request...' : 'Initiate Request'}
-            onPress={handleSubmit}
-            loading={submitting}
-            variant="primary"
-            size="lg"
-            style={{ marginTop: SPACING.xl }}
-            icon={<Ionicons name="paper-plane-outline" size={18} color="#040810" />}
-          />
-        </Card>
-      </View>
-    </ScrollView>
+            {/* Submit */}
+            <Button
+              title={submitting ? 'Transmitting Request...' : 'Initiate Request'}
+              onPress={handleSubmit}
+              loading={submitting}
+              variant="primary"
+              size="lg"
+              style={{ marginTop: SPACING.xl }}
+              icon={<Ionicons name="paper-plane-outline" size={18} color="#040810" />}
+            />
+          </Card>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };

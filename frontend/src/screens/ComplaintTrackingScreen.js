@@ -448,8 +448,8 @@ export const ComplaintTrackingScreen = ({ route, navigation }) => {
                             color: isCurrent
                               ? colors.primary
                               : isPast
-                              ? colors.green
-                              : colors.textMuted,
+                                ? colors.green
+                                : colors.textMuted,
                           },
                         ]}
                       >

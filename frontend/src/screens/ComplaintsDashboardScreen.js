@@ -265,7 +265,7 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
               const isAssignedToMe =
                 ticket.assignedTo &&
                 String(ticket.assignedTo._id || ticket.assignedTo) ===
-                  String(user?.id || user?._id);
+                String(user?.id || user?._id);
 
               return (
                 <Pressable
@@ -432,9 +432,8 @@ export const ComplaintsDashboardScreen = ({ navigation }) => {
                   <Button
                     title="View Document / Photo ↗"
                     onPress={() => {
-                      const fullUrl = `${FILE_BASE_URL}${
-                        selectedComplaint.attachment.startsWith('/') ? '' : '/'
-                      }${selectedComplaint.attachment}`;
+                      const fullUrl = `${FILE_BASE_URL}${selectedComplaint.attachment.startsWith('/') ? '' : '/'
+                        }${selectedComplaint.attachment}`;
                       Linking.openURL(fullUrl);
                     }}
                     variant="outline"

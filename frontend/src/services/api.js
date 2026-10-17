@@ -19,6 +19,10 @@ const getHostFromExpo = () => {
 };
 
 const getApiUrl = () => {
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl;
+  }
   if (Platform.OS === 'web') {
     const host =
       typeof window !== 'undefined' && window.location.hostname
@@ -30,14 +34,14 @@ const getApiUrl = () => {
   if (expoHost) {
     return `http://${expoHost}:5000/api`;
   }
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
-    return envUrl;
-  }
-  return 'http://10.14.65.187:5000/api';
+  return 'http://13.239.123.19/api';
 };
 
 const getFileUrl = () => {
+  const envUrl = process.env.EXPO_PUBLIC_FILE_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl;
+  }
   if (Platform.OS === 'web') {
     const host =
       typeof window !== 'undefined' && window.location.hostname
@@ -49,11 +53,7 @@ const getFileUrl = () => {
   if (expoHost) {
     return `http://${expoHost}:5000`;
   }
-  const envUrl = process.env.EXPO_PUBLIC_FILE_URL;
-  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
-    return envUrl;
-  }
-  return 'http://10.14.65.187:5000';
+  return 'http://13.239.123.19';
 };
 
 export const API_BASE_URL = getApiUrl();

@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 10.0.0"
+    "version": ">= 10.0.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -19,8 +20,8 @@
     },
     "production": {
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://your-production-backend.com/api",
-        "EXPO_PUBLIC_FILE_URL": "https://your-production-backend.com"
+        "EXPO_PUBLIC_API_URL": "http://13.239.123.19/api",
+        "EXPO_PUBLIC_FILE_URL": "http://13.239.123.19"
       }
     }
   },
